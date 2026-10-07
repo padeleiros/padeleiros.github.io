@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-PT">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bandeja Padel Rackets</title>
+<title>Bandeja Raquetes de Padel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
@@ -184,13 +184,13 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 <body>
 <header class="topbar">
   <div class="topbar-inner">
-    <a class="brand" href="#shop" aria-label="Bandeja, back to all rackets">
+    <a class="brand" href="#shop" aria-label="Bandeja, voltar a todas as raquetes">
       <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="#d9f24a"/><path d="M4 11c5 3 17 3 22 0M4 19c5-3 17-3 22 0" stroke="#1b2a06" stroke-width="1.6" fill="none"/></svg>
       <span class="brand-name">Bandeja</span>
     </a>
     <div class="top-actions">
-      <button class="sell-btn" id="sellBtn" type="button">Sell a racket</button>
-      <button class="basket-btn" id="basketBtn" type="button">Basket <span class="count" id="count">0</span></button>
+      <button class="sell-btn" id="sellBtn" type="button">Vender raquete</button>
+      <button class="basket-btn" id="basketBtn" type="button">Cesto <span class="count" id="count">0</span></button>
     </div>
   </div>
 </header>
@@ -198,7 +198,7 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 <main id="app"></main>
 
 <footer>
-  <span>Padel rackets, new and used. Payment by MB WAY.</span>
+  <span>Raquetes de padel, novas e usadas. Pagamento por MB WAY.</span>
   <span id="footContact"></span>
 </footer>
 
@@ -213,8 +213,8 @@ const SHOP = {
   mbwayNumber: "912 345 678",        // your MB WAY phone number (shown to buyers)
   whatsapp: "351912345678",          // same number with country code, digits only
   shipping: [
-    { id: "pickup", label: "Pick up in person", price: 0 },
-    { id: "ctt",    label: "Shipping in Portugal (CTT)", price: 6 }
+    { id: "pickup", label: "Levantamento em mão", price: 0 },
+    { id: "ctt",    label: "Envio para Portugal (CTT)", price: 6 }
   ]
 };
 
@@ -231,32 +231,32 @@ const SUPABASE = {
 const RACKETS = [
   { id: "vertex04", name: "Bullpadel Vertex 04 2024", condition: "Very good", price: 145,
     shape: "diamond", weight: "365 g", core: "MultiEVA (hard)", face: "Carbon 12K", year: 2024,
-    notes: "Played about 3 months. Small scuff on the frame guard, face is clean. Comes with original cover.",
+    notes: "Usada cerca de 3 meses. Pequeno risco no protetor do aro, a face está limpa. Inclui a capa original.",
     review: "https://www.youtube.com/results?search_query=Bullpadel+Vertex+04+2024+review",
     colors: ["#111827", "#f97316", "#facc15"] },
   { id: "viper24", name: "Babolat Technical Viper 2024", condition: "New", price: 249,
     shape: "diamond", weight: "365 g", core: "Black EVA (hard)", face: "Carbon 12K", year: 2024,
-    notes: "Brand new, still in plastic. Full manufacturer warranty.",
+    notes: "Nova, ainda no plástico. Com garantia completa do fabricante.",
     review: "https://www.youtube.com/results?search_query=Babolat+Technical+Viper+2024+review",
     colors: ["#0b0b0b", "#e11d48", "#f5f5f5"] },
   { id: "at10", name: "Nox AT10 Genius 18K 2024", condition: "Like new", price: 189,
     shape: "teardrop", weight: "370 g", core: "MLD Black EVA", face: "Carbon 18K", year: 2024,
-    notes: "Used twice, then I switched to a round racket. No marks.",
+    notes: "Usada duas vezes, depois mudei para uma raquete redonda. Sem marcas.",
     review: "https://www.youtube.com/results?search_query=Nox+AT10+Genius+18K+2024+review",
     colors: ["#1e293b", "#eab308", "#ffffff"] },
   { id: "extreme", name: "Head Extreme Pro 2024", condition: "Good", price: 95,
     shape: "teardrop", weight: "360 g", core: "Power Foam", face: "Carbon", year: 2024,
-    notes: "One season of club play. Normal wear on the edges, grip recently replaced.",
+    notes: "Uma época de jogo no clube. Desgaste normal nas bordas, grip trocado recentemente.",
     review: "https://www.youtube.com/results?search_query=Head+Extreme+Pro+2024+padel+review",
     colors: ["#0f172a", "#22d3ee", "#a3e635"] },
   { id: "ml10", name: "Nox ML10 Pro Cup", condition: "Good", price: 79,
     shape: "round", weight: "360 g", core: "HR3 Black EVA (soft)", face: "Fibreglass", year: 2023,
-    notes: "A forgiving control racket, good for beginners. Light marks on the face.",
+    notes: "Raquete de controlo fácil de jogar, boa para iniciantes. Marcas ligeiras na face.",
     review: "https://www.youtube.com/results?search_query=Nox+ML10+Pro+Cup+review",
     colors: ["#111111", "#dc2626", "#fbbf24"] },
   { id: "metalbone", name: "Adidas Metalbone 3.3", condition: "Fair", price: 110,
     shape: "diamond", weight: "370 g", core: "EVA High Memory", face: "Carbon Aluminized 16K", year: 2024,
-    notes: "Played hard for a season. Visible chips on the frame top, structurally fine. Priced for that.",
+    notes: "Muito jogada durante uma época. Lascas visíveis no topo do aro, estruturalmente em bom estado. Preço ajustado a isso.",
     review: "https://www.youtube.com/results?search_query=Adidas+Metalbone+3.3+review",
     colors: ["#1f2937", "#3b82f6", "#e5e7eb"] }
 ];
@@ -265,18 +265,20 @@ const RACKETS = [
 const ONLINE = !!(SUPABASE.url && SUPABASE.key);
 const CONDITIONS = ["New", "Like new", "Very good", "Good", "Fair"];
 const CONDITION_INFO = {
-  "New": "Unused, in original packaging.",
-  "Like new": "Used once or twice, no visible marks.",
-  "Very good": "Light use, minor cosmetic marks.",
-  "Good": "Regular use, normal wear on frame and face.",
-  "Fair": "Heavy use, visible marks, plays fine."
+  "New": "Nunca usada, na embalagem original.",
+  "Like new": "Usada uma ou duas vezes, sem marcas visíveis.",
+  "Very good": "Pouco uso, pequenas marcas estéticas.",
+  "Good": "Uso regular, desgaste normal no aro e na face.",
+  "Fair": "Muito uso, marcas visíveis, joga bem."
 };
+const COND_PT = { "New": "Nova", "Like new": "Como nova", "Very good": "Muito bom estado", "Good": "Bom estado", "Fair": "Estado razoável" };
+const SHAPE_PT = { round: "Redonda", teardrop: "Lágrima", diamond: "Diamante" };
 const PALETTES = [["#111827","#f97316","#facc15"],["#0f172a","#22d3ee","#a3e635"],["#1f2937","#3b82f6","#e5e7eb"],["#111111","#dc2626","#fbbf24"],["#1e293b","#a855f7","#f5f5f5"]];
 
-const euro = n => "€" + Number(n).toFixed(2).replace(".", ",");
+const euro = n => Number(n).toFixed(2).replace(".", ",") + " €";
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const fmtPhone = p => p.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3");
-const cap = s => s ? s[0].toUpperCase() + s.slice(1) : "";
+const shapePT = s => SHAPE_PT[s] || "";
 const safeYouTube = u => /^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//.test(u || "") ? u : "";
 
 const SHOP_SELLER = { key: "shop", name: SHOP.name, mbway: SHOP.mbwayNumber, whatsapp: SHOP.whatsapp, shop: true };
@@ -336,7 +338,7 @@ function racketSVG(r, view = "front") {
   const uid = "c" + (svgSeq++);
   const grip = x => [0,1,2,3,4,5].map(i => `<path d="M${x},${254+i*9} L${200-x},${259+i*9}" stroke="${light}" stroke-opacity=".35" stroke-width="2"/>`).join("");
   if (view === "side") {
-    return `<svg viewBox="0 0 200 320" role="img" aria-label="${esc(r.name)}, side view">
+    return `<svg viewBox="0 0 200 320" role="img" aria-label="${esc(r.name)}, vista lateral">
       <path d="M93,14 C99,12 101,12 107,14 L109,200 L104,250 L96,250 L91,200Z" fill="${frame}"/>
       <rect x="95.5" y="14" width="9" height="186" fill="${accent}" opacity=".85"/>
       <rect x="91" y="248" width="18" height="62" rx="5" fill="${frame}"/>${grip(91)}</svg>`;
@@ -352,7 +354,7 @@ function racketSVG(r, view = "front") {
        <path d="M-10,128 L210,68 L210,78 L-10,138Z" fill="${light}" opacity=".9"/>
        <circle cx="100" cy="160" r="16" fill="none" stroke="${light}" stroke-width="3" opacity=".8"/>`;
   const vb = view === "detail" ? "34 20 132 132" : "0 0 200 320";
-  return `<svg viewBox="${vb}" role="img" aria-label="${esc(r.name)}, ${view} view">
+  return `<svg viewBox="${vb}" role="img" aria-label="${esc(r.name)}, vista ${({front:"frontal",back:"traseira",detail:"de pormenor"})[view] || ""}">
     <defs><clipPath id="${uid}"><path d="${head}"/></clipPath></defs>
     <path d="M80,190 L94,250 L106,250 L120,190 L112,190 L100,226 L88,190Z" fill="${frame}"/>
     <g clip-path="url(#${uid})"><rect width="200" height="220" fill="${frame}"/>${faceArt}<g fill="${frame}" opacity=".9">${holes}</g></g>
@@ -360,11 +362,11 @@ function racketSVG(r, view = "front") {
     <path d="${head}" fill="none" stroke="${accent}" stroke-width="2" opacity=".7"/>
     <rect x="88" y="248" width="24" height="62" rx="6" fill="${frame}"/>${grip(88)}</svg>`;
 }
-const VIEWS = [["front","Front"],["back","Back"],["side","Side"],["detail","Close-up"]];
+const VIEWS = [["front","Frente"],["back","Verso"],["side","Lado"],["detail","Pormenor"]];
 const cover = r => r.photos.length ? `<img src="${esc(r.photos[0])}" alt="${esc(r.name)}" loading="lazy">` : racketSVG(r);
 function galleryItems(r) {
   return r.photos.length
-    ? r.photos.map((u, i) => ({ label: "Photo " + (i + 1), html: `<img src="${esc(u)}" alt="${esc(r.name)}, photo ${i + 1}">` }))
+    ? r.photos.map((u, i) => ({ label: "Foto " + (i + 1), html: `<img src="${esc(u)}" alt="${esc(r.name)}, foto ${i + 1}">` }))
     : VIEWS.map(([v, l]) => ({ label: l, html: racketSVG(r, v) }));
 }
 
@@ -375,7 +377,7 @@ function put(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); }
 let basket = store("bandeja-basket", []);
 let myListings = store("bandeja-my-listings", []);   // [{id, code, name}]
 function saveBasket() { put("bandeja-basket", basket); document.getElementById("count").textContent = basket.length; }
-function addToBasket(id) { if (!basket.includes(id)) basket.push(id); saveBasket(); toast("Added to basket"); }
+function addToBasket(id) { if (!basket.includes(id)) basket.push(id); saveBasket(); toast("Adicionada ao cesto"); }
 function removeFromBasket(id) { basket = basket.filter(x => x !== id); saveBasket(); }
 
 let toastTimer;
@@ -385,8 +387,8 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2200);
 }
 function copyText(txt, label) {
-  try { navigator.clipboard.writeText(txt).then(() => toast(label + " copied"), () => toast("Select the text to copy it")); }
-  catch (e) { toast("Select the text to copy it"); }
+  try { navigator.clipboard.writeText(txt).then(() => toast("Copiado: " + label.toLowerCase()), () => toast("Selecione o texto para o copiar")); }
+  catch (e) { toast("Selecione o texto para o copiar"); }
 }
 
 /* ---------- views ---------- */
@@ -395,22 +397,22 @@ let filter = "all";
 let checkout = { delivery: "pickup", name: "", phone: "", address: "" };
 let order = null;
 
-const chip = c => `<span class="chip ${c === "New" ? "new" : "used"}" title="${esc(CONDITION_INFO[c])}">${esc(c === "New" ? "New" : "Used · " + c)}</span>`;
+const chip = c => `<span class="chip ${c === "New" ? "new" : "used"}" title="${esc(CONDITION_INFO[c])}">${esc(c === "New" ? "Nova" : "Usada · " + COND_PT[c])}</span>`;
 const ytIcon = `<svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect width="16" height="12" rx="3" fill="#ff0033"/><path d="M6.4 3.4v5.2L10.8 6Z" fill="#fff"/></svg>`;
-const sellerLine = r => `<div class="seller">Sold by <b>${esc(r.seller.name)}</b></div>`;
+const sellerLine = r => `<div class="seller">Vendida por <b>${esc(r.seller.name)}</b></div>`;
 
 function viewShop() {
   const list = ITEMS.filter(r => filter === "all" || (filter === "new" ? r.condition === "New" : r.condition !== "New"));
-  const status = listingsState === "loading" ? `<p class="status">Loading rackets from other sellers…</p>`
-    : listingsState === "error" ? `<p class="error">Rackets from other sellers couldn't be loaded. Refresh the page to try again.</p>` : "";
+  const status = listingsState === "loading" ? `<p class="status">A carregar raquetes de outros vendedores…</p>`
+    : listingsState === "error" ? `<p class="error">Não foi possível carregar as raquetes de outros vendedores. Atualize a página para tentar de novo.</p>` : "";
   app.innerHTML = `
     <section class="intro">
       <div>
-        <h1>Padel rackets</h1>
-        <p>New and second-hand rackets from players around you. Tap a racket for more photos. ${ONLINE ? "Got one to sell? Add it in a minute." : ""}</p>
+        <h1>Raquetes de padel</h1>
+        <p>Raquetes novas e em segunda mão de jogadores perto de si. Toque numa raquete para ver mais fotos. ${ONLINE ? "Tem uma para vender? Anuncie-a num minuto." : ""}</p>
       </div>
-      <div class="filters" role="group" aria-label="Filter by condition">
-        ${[["all","All"],["new","New"],["used","Used"]].map(([k,l]) =>
+      <div class="filters" role="group" aria-label="Filtrar por estado">
+        ${[["all","Todas"],["new","Novas"],["used","Usadas"]].map(([k,l]) =>
           `<button class="filter" type="button" data-filter="${k}" aria-pressed="${filter === k}">${l}</button>`).join("")}
       </div>
     </section>
@@ -422,18 +424,18 @@ function viewShop() {
             <div class="art">${cover(r)}</div>
             <div class="card-body">
               <h2 class="card-name">${esc(r.name)}</h2>
-              <div class="meta">${[r.shapeKnown === false ? "" : cap(r.shape), r.weight].filter(Boolean).map(esc).join(" · ")}</div>
+              <div class="meta">${[r.shapeKnown === false ? "" : shapePT(r.shape), r.weight].filter(Boolean).map(esc).join(" · ")}</div>
               ${sellerLine(r)}
               <div class="row"><span class="price">${euro(r.price)}</span>${chip(r.condition)}</div>
             </div>
           </a>
           <div class="card-foot">
-            ${r.review ? `<a class="yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Watch review</a>` : `<span></span>`}
-            ${basket.includes(r.id) ? `<span class="sold-tag">In basket</span>` : ""}
+            ${r.review ? `<a class="yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Ver review</a>` : `<span></span>`}
+            ${basket.includes(r.id) ? `<span class="sold-tag">No cesto</span>` : ""}
           </div>
         </article>`).join("")}
     </section>
-    <p class="notice">The shop's own rackets are sample stock. Replace them in the shop settings.</p>`;
+    <p class="notice">As raquetes da loja são exemplos. Substitua-as nas definições da loja.</p>`;
   app.querySelectorAll("[data-filter]").forEach(b => b.onclick = () => { filter = b.dataset.filter; viewShop(); });
 }
 
@@ -442,18 +444,18 @@ function viewRacket(r) {
   const g = galleryItems(r);
   const mine = myListings.find(m => m.id === r.uuid);
   const specs = [
-    ["Condition", `${r.condition}. ${CONDITION_INFO[r.condition]}`],
-    ["Shape", r.shapeKnown === false ? "" : cap(r.shape)],
-    ["Weight", r.weight], ["Core", r.core], ["Face", r.face], ["Year", r.year],
-    ["Seller", r.seller.name]
+    ["Estado", `${COND_PT[r.condition]}. ${CONDITION_INFO[r.condition]}`],
+    ["Formato", r.shapeKnown === false ? "" : shapePT(r.shape)],
+    ["Peso", r.weight], ["Núcleo", r.core], ["Face", r.face], ["Ano", r.year],
+    ["Vendedor", r.seller.name]
   ].filter(([, v]) => v);
   app.innerHTML = `
-    <button class="back" type="button" id="back">← All rackets</button>
+    <button class="back" type="button" id="back">← Todas as raquetes</button>
     <section class="detail">
       <div>
         <div class="gallery-main" id="mainPic">${g[0].html}</div>
         ${g.length > 1 ? `<div class="thumbs">
-          ${g.map((it, i) => `<div><button class="thumb" type="button" data-i="${i}" aria-current="${i===0}" aria-label="Show ${esc(it.label)}">${it.html}</button><div class="thumb-label">${esc(it.label)}</div></div>`).join("")}
+          ${g.map((it, i) => `<div><button class="thumb" type="button" data-i="${i}" aria-current="${i===0}" aria-label="Mostrar ${esc(it.label)}">${it.html}</button><div class="thumb-label">${esc(it.label)}</div></div>`).join("")}
         </div>` : ""}
       </div>
       <div>
@@ -463,17 +465,17 @@ function viewRacket(r) {
         <dl class="specs">${specs.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
         ${r.notes ? `<p class="notes">${esc(r.notes)}</p>` : ""}
         <div class="actions">
-          <button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "In your basket" : "Add to basket"}</button>
-          ${inBasket ? `<button class="btn btn-dark" type="button" id="goBasket">Go to basket</button>` : ""}
-          ${r.review ? `<a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Watch YouTube review</a>` : ""}
+          <button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "Está no seu cesto" : "Adicionar ao cesto"}</button>
+          ${inBasket ? `<button class="btn btn-dark" type="button" id="goBasket">Ir para o cesto</button>` : ""}
+          ${r.review ? `<a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Ver review no YouTube</a>` : ""}
         </div>
         ${r.remote ? `
         <details class="owner" ${mine ? "open" : ""}>
-          <summary>Is this your listing? Remove it</summary>
-          <p class="hint">Enter the code you got when you listed this racket, for example after it sells.</p>
+          <summary>Este anúncio é seu? Remova-o</summary>
+          <p class="hint">Introduza o código que recebeu ao anunciar esta raquete, por exemplo depois de a vender.</p>
           <form class="inline-form" id="removeForm">
-            <input id="removeCode" placeholder="Listing code" autocomplete="off" value="${esc(mine ? mine.code : "")}" aria-label="Listing code">
-            <button class="btn btn-dark" type="submit">Remove listing</button>
+            <input id="removeCode" placeholder="Código do anúncio" autocomplete="off" value="${esc(mine ? mine.code : "")}" aria-label="Código do anúncio">
+            <button class="btn btn-dark" type="submit">Remover anúncio</button>
           </form>
           <p class="error" id="removeError" hidden></p>
         </details>` : ""}
@@ -491,13 +493,13 @@ function viewRacket(r) {
     e.preventDefault();
     const err = document.getElementById("removeError");
     const code = document.getElementById("removeCode").value.trim();
-    if (!code) { err.textContent = "Enter your listing code."; err.hidden = false; return; }
+    if (!code) { err.textContent = "Introduza o código do anúncio."; err.hidden = false; return; }
     try {
       const ok = await api("/rest/v1/rpc/delete_listing", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p_id: r.uuid, p_code: code }) });
-      if (!ok) { err.textContent = "That code doesn't match this listing. Check it and try again."; err.hidden = false; return; }
+      if (!ok) { err.textContent = "Esse código não corresponde a este anúncio. Verifique-o e tente de novo."; err.hidden = false; return; }
       myListings = myListings.filter(m => m.id !== r.uuid); put("bandeja-my-listings", myListings);
-      toast("Listing removed"); go("shop"); loadListings();
-    } catch (ex) { err.textContent = "The listing couldn't be removed right now. Check your connection and try again."; err.hidden = false; }
+      toast("Anúncio removido"); go("shop"); loadListings();
+    } catch (ex) { err.textContent = "Não foi possível remover o anúncio agora. Verifique a ligação e tente de novo."; err.hidden = false; }
   };
 }
 
@@ -505,67 +507,67 @@ function viewRacket(r) {
 let sellResult = null;
 function viewSell() {
   if (!ONLINE) {
-    app.innerHTML = `<h1 class="page-title">Sell a racket</h1>
-      <div class="panel"><p>Selling isn't switched on yet. The shop owner needs to add the database details in the shop settings.</p></div>`;
+    app.innerHTML = `<h1 class="page-title">Vender raquete</h1>
+      <div class="panel"><p>As vendas ainda não estão ativas. O dono da loja tem de adicionar os dados da base de dados nas definições.</p></div>`;
     return;
   }
   if (sellResult) {
     const r = sellResult;
-    app.innerHTML = `<h1 class="page-title">Your racket is listed</h1>
+    app.innerHTML = `<h1 class="page-title">A sua raquete está anunciada</h1>
       <div class="panel" style="max-width:640px">
-        <p><b>${esc(r.name)}</b> is now on the front page.</p>
-        <p>Your listing code is:</p>
-        <p><span class="code" id="theCode">${esc(r.code)}</span> <button class="btn btn-ghost" type="button" id="copyCode">Copy</button></p>
-        <p class="hint">Save this code. You need it to remove the listing once the racket sells. This browser remembers it too.</p>
+        <p><b>${esc(r.name)}</b> já está na página inicial.</p>
+        <p>O código do seu anúncio é:</p>
+        <p><span class="code" id="theCode">${esc(r.code)}</span> <button class="btn btn-ghost" type="button" id="copyCode">Copiar</button></p>
+        <p class="hint">Guarde este código. Vai precisar dele para remover o anúncio quando vender a raquete. Este browser também o guarda.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="#r-u${esc(r.id)}" style="text-decoration:none">See your listing</a>
-          <button class="btn btn-ghost" type="button" id="another">List another racket</button>
+          <a class="btn btn-primary" href="#r-u${esc(r.id)}" style="text-decoration:none">Ver o seu anúncio</a>
+          <button class="btn btn-ghost" type="button" id="another">Anunciar outra raquete</button>
         </div>
       </div>`;
-    document.getElementById("copyCode").onclick = () => copyText(r.code, "Code");
+    document.getElementById("copyCode").onclick = () => copyText(r.code, "Código");
     document.getElementById("another").onclick = () => { sellResult = null; viewSell(); };
     return;
   }
   app.innerHTML = `
-    <button class="back" type="button" id="back">← All rackets</button>
-    <h1 class="page-title">Sell a racket</h1>
+    <button class="back" type="button" id="back">← Todas as raquetes</button>
+    <h1 class="page-title">Vender raquete</h1>
     <div class="sell-layout">
       <form class="panel" id="sellForm" novalidate>
-        <div class="field"><label for="s-name">Racket name</label><input id="s-name" maxlength="80" placeholder="Brand, model and year" required></div>
+        <div class="field"><label for="s-name">Nome da raquete</label><input id="s-name" maxlength="80" placeholder="Marca, modelo e ano" required></div>
         <div class="two">
-          <div class="field"><label for="s-cond">Condition</label>
-            <select id="s-cond">${CONDITIONS.map(c => `<option value="${c}">${c}</option>`).join("")}</select>
+          <div class="field"><label for="s-cond">Estado</label>
+            <select id="s-cond">${CONDITIONS.map(c => `<option value="${c}">${COND_PT[c]}</option>`).join("")}</select>
             <span class="hint" id="s-cond-hint">${CONDITION_INFO.New}</span></div>
-          <div class="field"><label for="s-price">Price (€)</label><input id="s-price" inputmode="decimal" placeholder="120" required></div>
+          <div class="field"><label for="s-price">Preço (€)</label><input id="s-price" inputmode="decimal" placeholder="120" required></div>
         </div>
         <div class="two">
-          <div class="field"><label for="s-shape">Shape</label>
-            <select id="s-shape"><option value="">Not sure</option><option value="round">Round</option><option value="teardrop">Teardrop</option><option value="diamond">Diamond</option></select></div>
-          <div class="field"><label for="s-weight">Weight</label><input id="s-weight" maxlength="20" placeholder="365 g"></div>
+          <div class="field"><label for="s-shape">Formato</label>
+            <select id="s-shape"><option value="">Não sei</option><option value="round">Redonda</option><option value="teardrop">Lágrima</option><option value="diamond">Diamante</option></select></div>
+          <div class="field"><label for="s-weight">Peso</label><input id="s-weight" maxlength="20" placeholder="365 g"></div>
         </div>
-        <div class="field"><label for="s-photos">Photos (up to 4)</label><input id="s-photos" type="file" accept="image/*" multiple>
-          <div class="previews" id="previews"></div><span class="hint">Front, back and any marks or damage.</span></div>
-        <div class="field"><label for="s-notes">Description</label><textarea id="s-notes" rows="4" maxlength="600" placeholder="How much it's been used, any marks, what's included"></textarea></div>
-        <div class="field"><label for="s-review">YouTube review link (optional)</label><input id="s-review" inputmode="url" placeholder="https://www.youtube.com/watch?v=…"></div>
+        <div class="field"><label for="s-photos">Fotos (até 4)</label><input id="s-photos" type="file" accept="image/*" multiple>
+          <div class="previews" id="previews"></div><span class="hint">Frente, verso e quaisquer marcas ou danos.</span></div>
+        <div class="field"><label for="s-notes">Descrição</label><textarea id="s-notes" rows="4" maxlength="600" placeholder="Quanto foi usada, marcas, o que inclui"></textarea></div>
+        <div class="field"><label for="s-review">Link de review no YouTube (opcional)</label><input id="s-review" inputmode="url" placeholder="https://www.youtube.com/watch?v=…"></div>
         <div class="two">
-          <div class="field"><label for="s-seller">Your name</label><input id="s-seller" maxlength="40" autocomplete="given-name" required></div>
-          <div class="field"><label for="s-phone">Your MB WAY number</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" required></div>
+          <div class="field"><label for="s-seller">O seu nome</label><input id="s-seller" maxlength="40" autocomplete="given-name" required></div>
+          <div class="field"><label for="s-phone">O seu número MB WAY</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" required></div>
         </div>
-        <div class="hp" aria-hidden="true"><label for="s-web">Website</label><input id="s-web" tabindex="-1" autocomplete="off"></div>
-        <label class="check"><input type="checkbox" id="s-consent"> <span>I understand my name and phone number will be shown on the listing so buyers can pay me by MB WAY and message me on WhatsApp.</span></label>
+        <div class="hp" aria-hidden="true"><label for="s-web">Site</label><input id="s-web" tabindex="-1" autocomplete="off"></div>
+        <label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o meu nome e número de telemóvel ficam visíveis no anúncio, para que os compradores me paguem por MB WAY e me contactem por WhatsApp.</span></label>
         <p class="error" id="sellError" hidden></p>
-        <button class="btn btn-primary" type="submit" id="sellSubmit" style="width:100%;margin-top:14px">List my racket</button>
+        <button class="btn btn-primary" type="submit" id="sellSubmit" style="width:100%;margin-top:14px">Anunciar a minha raquete</button>
       </form>
       <div class="panel">
-        <div style="font-weight:700;margin-bottom:6px">How selling works</div>
+        <div style="font-weight:700;margin-bottom:6px">Como funciona a venda</div>
         <ol class="steps">
-          <li>Your racket goes on the front page straight away.</li>
-          <li>Buyers pay you directly with MB WAY and message you on WhatsApp.</li>
-          <li>You arrange pick-up or shipping with the buyer.</li>
-          <li>Remove the listing with your code once it sells.</li>
+          <li>A sua raquete aparece logo na página inicial.</li>
+          <li>Os compradores pagam-lhe diretamente por MB WAY e contactam-no por WhatsApp.</li>
+          <li>Combina o levantamento ou o envio com o comprador.</li>
+          <li>Quando vender, remova o anúncio com o seu código.</li>
         </ol>
-        ${myListings.length ? `<div style="font-weight:700;margin:18px 0 4px">Your listings on this device</div>
-          <div class="mine">${myListings.map(m => `<div class="mine-row"><a href="#r-u${esc(m.id)}">${esc(m.name)}</a><span class="meta">Code ${esc(m.code)}</span></div>`).join("")}</div>` : ""}
+        ${myListings.length ? `<div style="font-weight:700;margin:18px 0 4px">Os seus anúncios neste dispositivo</div>
+          <div class="mine">${myListings.map(m => `<div class="mine-row"><a href="#r-u${esc(m.id)}">${esc(m.name)}</a><span class="meta">Código ${esc(m.code)}</span></div>`).join("")}</div>` : ""}
       </div>
     </div>`;
   document.getElementById("back").onclick = () => go("shop");
@@ -576,7 +578,7 @@ function viewSell() {
   photos.onchange = () => {
     files = [...photos.files].filter(f => f.type.startsWith("image/")).slice(0, 4);
     document.getElementById("previews").innerHTML = files.map(f => `<img src="${URL.createObjectURL(f)}" alt="">`).join("");
-    if (photos.files.length > 4) toast("Only the first 4 photos will be used");
+    if (photos.files.length > 4) toast("Só serão usadas as primeiras 4 fotos");
   };
   document.getElementById("sellForm").onsubmit = async e => {
     e.preventDefault();
@@ -588,25 +590,25 @@ function viewSell() {
     const price = parseFloat(v("s-price").replace(",", "."));
     const phone = v("s-phone").replace(/\D/g, "").replace(/^351/, "");
     const review = v("s-review");
-    if (v("s-name").length < 3) return fail("Enter the racket's name, for example brand and model.");
-    if (!(price > 0 && price < 5000)) return fail("Enter a price in euros, for example 120.");
-    if (review && !safeYouTube(review)) return fail("The review link must be a YouTube link starting with https://.");
-    if (!files.length) return fail("Add at least one photo of the racket.");
-    if (v("s-seller").length < 2) return fail("Enter your name.");
-    if (!/^9[1236]\d{7}$/.test(phone)) return fail("Enter your MB WAY number: 9 digits, starting with 91, 92, 93 or 96.");
-    if (!document.getElementById("s-consent").checked) return fail("Tick the box to agree to showing your name and number.");
+    if (v("s-name").length < 3) return fail("Introduza o nome da raquete, por exemplo marca e modelo.");
+    if (!(price > 0 && price < 5000)) return fail("Introduza um preço em euros, por exemplo 120.");
+    if (review && !safeYouTube(review)) return fail("O link da review tem de ser um link do YouTube que comece por https://.");
+    if (!files.length) return fail("Adicione pelo menos uma foto da raquete.");
+    if (v("s-seller").length < 2) return fail("Introduza o seu nome.");
+    if (!/^9[1236]\d{7}$/.test(phone)) return fail("Introduza o seu número MB WAY: 9 dígitos, a começar por 91, 92, 93 ou 96.");
+    if (!document.getElementById("s-consent").checked) return fail("Marque a caixa para aceitar mostrar o seu nome e número.");
     const btn = document.getElementById("sellSubmit");
     btn.disabled = true;
     try {
       const names = [];
       for (let i = 0; i < files.length; i++) {
-        btn.textContent = `Uploading photo ${i + 1} of ${files.length}…`;
+        btn.textContent = `A enviar foto ${i + 1} de ${files.length}…`;
         const blob = await shrink(files[i]);
         const name = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + i + "-" + Math.random().toString(16).slice(2)) + ".jpg";
         await api("/storage/v1/object/photos/" + name, { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: blob });
         names.push(name);
       }
-      btn.textContent = "Publishing…";
+      btn.textContent = "A publicar…";
       const res = await api("/rest/v1/rpc/create_listing", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
@@ -618,8 +620,8 @@ function viewSell() {
       viewSell(); window.scrollTo(0, 0);
       loadListings();
     } catch (ex) {
-      btn.disabled = false; btn.textContent = "List my racket";
-      fail("Your racket couldn't be listed (" + ex.message + "). Check your connection and try again.");
+      btn.disabled = false; btn.textContent = "Anunciar a minha raquete";
+      fail("Não foi possível anunciar a raquete (" + ex.message + "). Verifique a ligação e tente de novo.");
     }
   };
 }
@@ -632,9 +634,9 @@ function shrink(file) {
       const c = document.createElement("canvas");
       c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      c.toBlob(b => b ? resolve(b) : reject(new Error("photo could not be read")), "image/jpeg", 0.82);
+      c.toBlob(b => b ? resolve(b) : reject(new Error("não foi possível ler a foto")), "image/jpeg", 0.82);
     };
-    img.onerror = () => reject(new Error("photo could not be read"));
+    img.onerror = () => reject(new Error("não foi possível ler a foto"));
     img.src = URL.createObjectURL(file);
   });
 }
@@ -656,8 +658,8 @@ function groups() {
 function viewBasket() {
   const items = basket.map(byId).filter(Boolean);
   if (!items.length) {
-    app.innerHTML = `<h1 class="page-title">Basket</h1>
-      <div class="panel empty"><p>${listingsState === "loading" && basket.length ? "Loading your basket…" : "Your basket is empty."}</p><button class="btn btn-primary" type="button" id="browse">Browse rackets</button></div>`;
+    app.innerHTML = `<h1 class="page-title">Cesto</h1>
+      <div class="panel empty"><p>${listingsState === "loading" && basket.length ? "A carregar o seu cesto…" : "O seu cesto está vazio."}</p><button class="btn btn-primary" type="button" id="browse">Ver raquetes</button></div>`;
     document.getElementById("browse").onclick = () => go("shop");
     return;
   }
@@ -665,8 +667,8 @@ function viewBasket() {
   const hasShop = gs.some(g => g.seller.shop);
   const total = gs.reduce((s, g) => s + g.total, 0);
   app.innerHTML = `
-    <button class="back" type="button" id="back">← Keep shopping</button>
-    <h1 class="page-title">Basket</h1>
+    <button class="back" type="button" id="back">← Continuar a comprar</button>
+    <h1 class="page-title">Cesto</h1>
     <div class="basket-layout">
       <div class="panel">
         ${items.map(r => `
@@ -674,8 +676,8 @@ function viewBasket() {
             <a class="mini" href="#r-${r.id}" aria-label="${esc(r.name)}">${cover(r)}</a>
             <div style="min-width:0">
               <div class="line-name">${esc(r.name)}</div>
-              <div class="meta">${esc(r.condition)} · sold by ${esc(r.seller.name)}</div>
-              <button class="remove" type="button" data-remove="${r.id}">Remove</button>
+              <div class="meta">${esc(COND_PT[r.condition])} · vendida por ${esc(r.seller.name)}</div>
+              <button class="remove" type="button" data-remove="${r.id}">Remover</button>
             </div>
             <div class="price">${euro(r.price)}</div>
           </div>`).join("")}
@@ -683,21 +685,21 @@ function viewBasket() {
       <div class="panel">
         <form id="checkoutForm" novalidate>
           ${hasShop ? `<div class="field">
-            <span id="dlabel" style="font-weight:600;font-size:14px">Delivery for ${esc(SHOP.name)} rackets</span>
+            <span id="dlabel" style="font-weight:600;font-size:14px">Entrega das raquetes da ${esc(SHOP.name)}</span>
             <div class="radio-group" role="radiogroup" aria-labelledby="dlabel">
-              ${SHOP.shipping.map(s => `<label class="radio"><input type="radio" name="delivery" id="del-${s.id}" value="${s.id}" ${checkout.delivery === s.id ? "checked" : ""}> <span style="flex:1">${esc(s.label)}</span> <span class="meta">${s.price ? euro(s.price) : "Free"}</span></label>`).join("")}
+              ${SHOP.shipping.map(s => `<label class="radio"><input type="radio" name="delivery" id="del-${s.id}" value="${s.id}" ${checkout.delivery === s.id ? "checked" : ""}> <span style="flex:1">${esc(s.label)}</span> <span class="meta">${s.price ? euro(s.price) : "Grátis"}</span></label>`).join("")}
             </div>
           </div>` : ""}
-          ${gs.some(g => !g.seller.shop) ? `<p class="hint">For rackets from other sellers, you arrange pick-up or shipping with the seller.</p>` : ""}
-          <div class="field"><label for="cname">Your name</label><input id="cname" autocomplete="name" value="${esc(checkout.name)}" required></div>
-          <div class="field"><label for="cphone">Your MB WAY phone number</label><input id="cphone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(checkout.phone)}" required><span class="hint">So the seller can match your payment.</span></div>
-          <div class="field" id="addrField" ${hasShop && checkout.delivery !== "pickup" ? "" : "hidden"}><label for="caddr">Shipping address</label><textarea id="caddr" rows="3" autocomplete="street-address">${esc(checkout.address)}</textarea></div>
-          ${gs.map(g => `<div class="sumrow"><span>${esc(g.seller.name)}${g.ship ? " (incl. delivery)" : ""}</span><span>${euro(g.total)}</span></div>`).join("")}
+          ${gs.some(g => !g.seller.shop) ? `<p class="hint">Nas raquetes de outros vendedores, combina o levantamento ou o envio com o vendedor.</p>` : ""}
+          <div class="field"><label for="cname">O seu nome</label><input id="cname" autocomplete="name" value="${esc(checkout.name)}" required></div>
+          <div class="field"><label for="cphone">O seu número MB WAY</label><input id="cphone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(checkout.phone)}" required><span class="hint">Para o vendedor identificar o seu pagamento.</span></div>
+          <div class="field" id="addrField" ${hasShop && checkout.delivery !== "pickup" ? "" : "hidden"}><label for="caddr">Morada de envio</label><textarea id="caddr" rows="3" autocomplete="street-address">${esc(checkout.address)}</textarea></div>
+          ${gs.map(g => `<div class="sumrow"><span>${esc(g.seller.name)}${g.ship ? " (com envio)" : ""}</span><span>${euro(g.total)}</span></div>`).join("")}
           <div class="sumrow total"><span>Total</span><span class="price">${euro(total)}</span></div>
-          ${gs.length > 1 ? `<p class="hint">You'll pay each seller separately.</p>` : ""}
-          <div class="mbway" style="margin-top:14px"><span class="mbway-badge">MB WAY</span><span class="meta">Payment by MB WAY only</span></div>
+          ${gs.length > 1 ? `<p class="hint">Vai pagar a cada vendedor separadamente.</p>` : ""}
+          <div class="mbway" style="margin-top:14px"><span class="mbway-badge">MB WAY</span><span class="meta">Pagamento apenas por MB WAY</span></div>
           <p class="error" id="formError" hidden></p>
-          <button class="btn btn-primary" type="submit" style="width:100%">Place order and pay with MB WAY</button>
+          <button class="btn btn-primary" type="submit" style="width:100%">Fazer encomenda e pagar com MB WAY</button>
         </form>
       </div>
     </div>`;
@@ -710,9 +712,9 @@ function viewBasket() {
     const err = document.getElementById("formError");
     const digits = checkout.phone.replace(/\D/g, "").replace(/^351/, "");
     let msg = "";
-    if (!checkout.name.trim()) msg = "Enter your name.";
-    else if (!/^9[1236]\d{7}$/.test(digits)) msg = "Enter a Portuguese mobile number with 9 digits, starting with 91, 92, 93 or 96.";
-    else if (hasShop && checkout.delivery !== "pickup" && !checkout.address.trim()) msg = "Enter a shipping address, or choose pick up.";
+    if (!checkout.name.trim()) msg = "Introduza o seu nome.";
+    else if (!/^9[1236]\d{7}$/.test(digits)) msg = "Introduza um número de telemóvel português com 9 dígitos, a começar por 91, 92, 93 ou 96.";
+    else if (hasShop && checkout.delivery !== "pickup" && !checkout.address.trim()) msg = "Introduza a morada de envio ou escolha levantamento em mão.";
     if (msg) { err.textContent = msg; err.hidden = false; return; }
     placeOrder(digits, hasShop);
   };
@@ -729,13 +731,13 @@ function placeOrder(phoneDigits) {
   const ref = "BJ-" + Math.floor(1000 + Math.random() * 9000);
   const delivery = SHOP.shipping.find(s => s.id === checkout.delivery);
   order = { ref, groups: groups().map(g => ({ ...g, text: [
-    `New order ${ref}`,
-    ...g.items.map(r => `- ${r.name} (${r.condition}) ${euro(r.price)}`),
-    g.seller.shop ? `Delivery: ${delivery.label}${delivery.price ? " " + euro(delivery.price) : ""}` : "Delivery: to arrange with you",
+    `Nova encomenda ${ref}`,
+    ...g.items.map(r => `- ${r.name} (${COND_PT[r.condition]}) ${euro(r.price)}`),
+    g.seller.shop ? `Entrega: ${delivery.label}${delivery.price ? " " + euro(delivery.price) : ""}` : "Entrega: a combinar consigo",
     `Total: ${euro(g.total)}`,
-    `Name: ${checkout.name.trim()}`,
-    `MB WAY phone: ${phoneDigits}`,
-    g.seller.shop && checkout.delivery !== "pickup" ? `Address: ${checkout.address.trim()}` : ""
+    `Nome: ${checkout.name.trim()}`,
+    `Telemóvel MB WAY: ${phoneDigits}`,
+    g.seller.shop && checkout.delivery !== "pickup" ? `Morada: ${checkout.address.trim()}` : ""
   ].filter(Boolean).join("\n") })) };
   basket = []; saveBasket();
   go("order");
@@ -745,31 +747,31 @@ function viewOrder() {
   if (!order) return go("shop");
   const many = order.groups.length > 1;
   app.innerHTML = `
-    <h1 class="page-title">Order ${esc(order.ref)}</h1>
-    ${many ? `<p class="status" style="margin-top:-8px">Your basket has rackets from ${order.groups.length} sellers. Pay each one separately.</p>` : ""}
+    <h1 class="page-title">Encomenda ${esc(order.ref)}</h1>
+    ${many ? `<p class="status" style="margin-top:-8px">O seu cesto tem raquetes de ${order.groups.length} vendedores. Pague a cada um separadamente.</p>` : ""}
     <div class="basket-layout">
       <div>
         ${order.groups.map((g, i) => `
         <div class="pay-box">
           <span class="mbway-badge" style="display:inline-block;margin-bottom:10px">MB WAY</span>
-          <h2>Pay ${esc(g.seller.name)}</h2>
+          <h2>Pagar a ${esc(g.seller.name)}</h2>
           <div>${esc(g.items.map(r => r.name).join(", "))}</div>
           <div class="big">${euro(g.total)}</div>
           <div class="pay-grid">
-            <div><div class="label">To number</div><div class="val">${esc(g.seller.mbway)}</div><button class="copy" type="button" data-copy="${esc(g.seller.mbway.replace(/\s/g,""))}" data-label="Number">Copy number</button></div>
-            <div><div class="label">Message / reference</div><div class="val">${esc(order.ref)}</div><button class="copy" type="button" data-copy="${esc(order.ref)}" data-label="Reference">Copy reference</button></div>
+            <div><div class="label">Para o número</div><div class="val">${esc(g.seller.mbway)}</div><button class="copy" type="button" data-copy="${esc(g.seller.mbway.replace(/\s/g,""))}" data-label="Número">Copiar número</button></div>
+            <div><div class="label">Mensagem / referência</div><div class="val">${esc(order.ref)}</div><button class="copy" type="button" data-copy="${esc(order.ref)}" data-label="Referência">Copiar referência</button></div>
           </div>
-          <a class="btn btn-primary" href="https://wa.me/${esc(g.seller.whatsapp)}?text=${encodeURIComponent(g.text)}" target="_blank" rel="noopener">Send order to ${esc(g.seller.name)} on WhatsApp</a>
-          <button class="copy" type="button" data-copy="${esc(g.text)}" data-label="Order details" style="margin-left:8px">Copy order details</button>
+          <a class="btn btn-primary" href="https://wa.me/${esc(g.seller.whatsapp)}?text=${encodeURIComponent(g.text)}" target="_blank" rel="noopener">Enviar encomenda a ${esc(g.seller.name)} por WhatsApp</a>
+          <button class="copy" type="button" data-copy="${esc(g.text)}" data-label="Detalhes da encomenda" style="margin-left:8px">Copiar detalhes</button>
         </div>`).join("")}
       </div>
       <div class="panel">
-        <div style="font-weight:700;margin-bottom:8px">What happens next</div>
+        <div style="font-weight:700;margin-bottom:8px">Próximos passos</div>
         <ol class="steps">
-          <li>Open the MB WAY app and choose <b>Send money</b>.</li>
-          <li>Send each amount to the number shown, with <b>${esc(order.ref)}</b> in the message.</li>
-          <li>Send your order on WhatsApp so the seller can match your payment.</li>
-          <li>The seller confirms once the payment arrives, then you arrange pick-up or shipping.</li>
+          <li>Abra a app MB WAY e escolha <b>Enviar dinheiro</b>.</li>
+          <li>Envie cada valor para o número indicado, com <b>${esc(order.ref)}</b> na mensagem.</li>
+          <li>Envie a encomenda por WhatsApp para o vendedor identificar o pagamento.</li>
+          <li>O vendedor confirma quando receber o pagamento e combinam o levantamento ou o envio.</li>
         </ol>
       </div>
     </div>`;
@@ -782,7 +784,7 @@ function render(scroll = true) {
   const h = location.hash.slice(1);
   if (scroll) window.scrollTo(0, 0);
   if (h.startsWith("r-") && byId(h.slice(2))) viewRacket(byId(h.slice(2)));
-  else if (h.startsWith("r-u") && listingsState === "loading") app.innerHTML = `<p class="status">Loading racket…</p>`;
+  else if (h.startsWith("r-u") && listingsState === "loading") app.innerHTML = `<p class="status">A carregar raquete…</p>`;
   else if (h === "basket") viewBasket();
   else if (h === "order") viewOrder();
   else if (h === "sell") viewSell();
@@ -791,7 +793,7 @@ function render(scroll = true) {
 window.addEventListener("hashchange", () => render());
 document.getElementById("basketBtn").onclick = () => go("basket");
 document.getElementById("sellBtn").onclick = () => { sellResult = null; go("sell"); };
-document.getElementById("footContact").textContent = "Shop MB WAY: " + SHOP.mbwayNumber;
+document.getElementById("footContact").textContent = "MB WAY da loja: " + SHOP.mbwayNumber;
 document.getElementById("count").textContent = basket.length;
 render();
 loadListings();

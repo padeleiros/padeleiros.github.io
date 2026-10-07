@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* Layout: a court-blue top bar, a calm grid of racket cards, one view at a time (shop / racket / basket / checkout) */
+/* Layout: a court-blue top bar, a calm grid of racket cards, one view at a time (shop / racket / seller / sell / account) */
 :root {
   --bg: #f3f6fa;
   --surface: #ffffff;
@@ -183,6 +183,20 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 .pay-box h2 { font: 800 22px var(--font-display); text-transform: uppercase; margin: 0 0 8px; }
 .pay-box .btn-primary { margin-top: 16px; display: inline-block; text-decoration: none; }
 .status { color: var(--muted); font-size: 14px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.place-filter { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 0 6px 0 14px; color: var(--muted); }
+.place-filter select { border: 0; background: transparent; padding: 7px 4px; font-weight: 600; font-size: 14px; color: var(--fg); max-width: 220px; }
+.place { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.place.big { font-size: 15px; margin-top: 6px; }
+.contact-box { margin-top: 22px; padding: 18px; border-radius: 14px; background: var(--court); color: var(--court-ink); display: grid; gap: 10px; }
+.contact-box p { margin: 0; }
+.contact-box .hint { color: var(--court-ink); opacity: .8; }
+.contact-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.wa-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+.phone-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.phone { font: 500 18px var(--font-mono); font-variant-numeric: tabular-nums; }
+.contact-box .btn-ghost { border-color: rgba(255,255,255,.5); color: var(--court-ink); }
 .stars { color: #e0a100; letter-spacing: 1px; white-space: nowrap; }
 .stars-off { color: var(--line); }
 .mini-star { color: #b98400; font-weight: 600; }
@@ -245,7 +259,6 @@ a.seller-box:hover { border-color: var(--court); }
     <div class="top-actions">
       <button class="sell-btn" id="sellBtn" type="button">Vender raquete</button>
       <button class="basket-btn" id="accountBtn" type="button" hidden>Entrar</button>
-      <button class="basket-btn" id="basketBtn" type="button">Cesto <span class="count" id="count">0</span></button>
     </div>
   </div>
 </header>
@@ -253,9 +266,8 @@ a.seller-box:hover { border-color: var(--court); }
 <main id="app"></main>
 
 <footer>
-  <span>Raquetes de padel, novas e usadas. Pagamento por MB WAY.</span>
-  <span id="footContact"></span>
-  <span><a href="privacidade.html">Privacidade</a> · <a href="termos.html">Termos</a></span>
+  <span>Raquetes de padel, novas e usadas, entre jogadores. Contacte o vendedor diretamente.</span>
+    <span><a href="privacidade.html">Privacidade</a> · <a href="termos.html">Termos</a></span>
 </footer>
 
 <div class="toast" id="toast" hidden></div>
@@ -267,12 +279,8 @@ a.seller-box:hover { border-color: var(--court); }
    ============================================================ */
 const SHOP = {
   name: "Padeleiros",
-  mbwayNumber: "912 345 678",        // your MB WAY phone number (shown to buyers)
-  whatsapp: "351912345678",          // same number with country code, digits only
-  shipping: [
-    { id: "pickup", label: "Levantamento em mão", price: 0 },
-    { id: "ctt",    label: "Envio para Portugal (CTT)", price: 6 }
-  ]
+  phone: "912 345 678",        // contact number for the shop's own rackets (RACKETS below)
+  whatsapp: "351912345678"     // same number with country code, digits only
 };
 
 /* Database for listings from other sellers (see supabase-setup.sql).
@@ -299,6 +307,17 @@ const CONDITION_INFO = {
 };
 const COND_PT = { "New": "Nova", "Like new": "Como nova", "Very good": "Muito bom estado", "Good": "Bom estado", "Fair": "Estado razoável" };
 const SHAPE_PT = { round: "Redonda", teardrop: "Lágrima", diamond: "Diamante" };
+const LOCATIONS = [
+  ["Açores", ["São Miguel", "Terceira", "Faial", "Pico", "São Jorge", "Graciosa", "Santa Maria", "Flores", "Corvo"]],
+  ["Madeira", ["Madeira", "Porto Santo"]],
+  ["Continente", ["Aveiro", "Beja", "Braga", "Bragança", "Castelo Branco", "Coimbra", "Évora", "Faro", "Guarda", "Leiria",
+                  "Lisboa", "Portalegre", "Porto", "Santarém", "Setúbal", "Viana do Castelo", "Vila Real", "Viseu"]]
+];
+const ALL_PLACES = LOCATIONS.flatMap(([, ps]) => ps);
+const placeText = r => [r.town, r.location].filter(Boolean).join(", ");
+const pinIcon = `<svg width="11" height="14" viewBox="0 0 12 16" aria-hidden="true" style="flex:none"><path d="M6 0C2.7 0 0 2.6 0 5.9 0 10.3 6 16 6 16s6-5.7 6-10.1C12 2.6 9.3 0 6 0zm0 8.2a2.3 2.3 0 110-4.6 2.3 2.3 0 010 4.6z" fill="currentColor"/></svg>`;
+const placeOptions = (selected, emptyLabel) => `<option value="">${emptyLabel}</option>` +
+  LOCATIONS.map(([g, ps]) => `<optgroup label="${g}">${ps.map(x => `<option value="${esc(x)}" ${x === selected ? "selected" : ""}>${esc(x)}</option>`).join("")}</optgroup>`).join("");
 const PALETTES = [["#111827","#f97316","#facc15"],["#0f172a","#22d3ee","#a3e635"],["#1f2937","#3b82f6","#e5e7eb"],["#111111","#dc2626","#fbbf24"],["#1e293b","#a855f7","#f5f5f5"]];
 
 const euro = n => Number(n).toFixed(2).replace(".", ",") + " €";
@@ -307,7 +326,7 @@ const fmtPhone = p => p.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3");
 const shapePT = s => SHAPE_PT[s] || "";
 const safeYouTube = u => /^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//.test(u || "") ? u : "";
 
-const SHOP_SELLER = { key: "shop", name: SHOP.name, mbway: SHOP.mbwayNumber, whatsapp: SHOP.whatsapp, shop: true };
+const SHOP_SELLER = { key: "shop", name: SHOP.name, phone: SHOP.phone, whatsapp: SHOP.whatsapp, shop: true };
 let ITEMS = RACKETS.map(r => ({ ...r, photos: r.photos || [], seller: SHOP_SELLER, remote: false }));
 let listingsState = ONLINE ? "loading" : "off";
 const byId = id => ITEMS.find(r => r.id === id) || ALL.find(r => r.id === id);
@@ -335,12 +354,13 @@ function fromRow(row) {
   return {
     id: "u" + row.id, uuid: row.id, remote: true, userId: row.user_id,
     soldAt: row.sold_at || null, buyerId: row.buyer_id || null, createdAt: row.created_at,
+    location: row.location || "", town: row.town || "",
     name: row.name, condition: row.condition, price: Number(row.price),
     shape: row.shape || "teardrop", shapeKnown: !!row.shape, weight: row.weight || "", notes: row.notes || "",
     review: safeYouTube(row.review), colors: pal,
     photoPaths: paths, photos: paths.map(photoUrl),
     seller: { key: "s:" + (row.user_id || row.seller_phone), name: prof ? displayName(prof) : row.seller_name,
-              username: prof ? prof.username : "", mbway: fmtPhone(row.seller_phone), whatsapp: "351" + row.seller_phone }
+              username: prof ? prof.username : "", phone: fmtPhone(row.seller_phone), whatsapp: "351" + row.seller_phone }
   };
 }
 const isMine = r => !!(user && r.remote && r.userId === user.id);
@@ -373,9 +393,14 @@ async function loadListings() {
     REVIEWS = rv.data || [];
     profilesState = pr.error ? "error" : "ok";
     let res = await sb.from("listings")
-      .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id,sold_at,buyer_id")
+      .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id,sold_at,buyer_id,location,town")
       .order("created_at", { ascending: false }).limit(1000);
     if (res.error) {   // database not upgraded yet: fall back to the older columns
+      res = await sb.from("listings")
+        .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id,sold_at,buyer_id")
+        .order("created_at", { ascending: false }).limit(1000);
+    }
+    if (res.error) {
       res = await sb.from("listings")
         .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id")
         .order("created_at", { ascending: false }).limit(1000);
@@ -388,7 +413,6 @@ async function loadListings() {
     listingsState = "error";
     if (profilesState === "loading") profilesState = "error";
   }
-  basket = basket.filter(id => { const r = byId(id); return r && !r.soldAt; }); saveBasket();
   render(false);
 }
 
@@ -441,10 +465,6 @@ function galleryItems(r) {
 function store(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; } }
 function put(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
 
-let basket = store("bandeja-basket", []);
-function saveBasket() { put("bandeja-basket", basket); document.getElementById("count").textContent = basket.length; }
-function addToBasket(id) { if (!basket.includes(id)) basket.push(id); saveBasket(); toast("Adicionada ao cesto"); }
-function removeFromBasket(id) { basket = basket.filter(x => x !== id); saveBasket(); }
 
 let toastTimer;
 function toast(msg) {
@@ -460,14 +480,14 @@ function copyText(txt, label) {
 /* ---------- views ---------- */
 const app = document.getElementById("app");
 let filter = "all";
-let checkout = { delivery: "pickup", name: "", phone: "", address: "" };
-let order = null;
+let place = "";
 
 const chip = c => `<span class="chip ${c === "New" ? "new" : "used"}" title="${esc(CONDITION_INFO[c])}">${esc(c === "New" ? "Nova" : "Usada · " + COND_PT[c])}</span>`;
 const ytIcon = `<svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect width="16" height="12" rx="3" fill="#ff0033"/><path d="M6.4 3.4v5.2L10.8 6Z" fill="#fff"/></svg>`;
 
 function viewShop() {
-  const list = ITEMS.filter(r => filter === "all" || (filter === "new" ? r.condition === "New" : r.condition !== "New"));
+  const list = ITEMS.filter(r => (filter === "all" || (filter === "new" ? r.condition === "New" : r.condition !== "New"))
+                              && (!place || r.location === place));
   const status = listingsState === "loading" ? `<p class="status">A carregar raquetes de outros vendedores…</p>`
     : listingsState === "error" ? `<p class="error">Não foi possível carregar as raquetes de outros vendedores. Atualize a página para tentar de novo.</p>` : "";
   app.innerHTML = `
@@ -476,24 +496,27 @@ function viewShop() {
         <h1>Raquetes de padel</h1>
         <p>Raquetes novas e em segunda mão de jogadores perto de si. Toque numa raquete para ver mais fotos. ${ONLINE ? "Tem uma para vender? Anuncie-a num minuto." : ""}</p>
       </div>
-      <div class="filters" role="group" aria-label="Filtrar por estado">
-        ${[["all","Todas"],["new","Novas"],["used","Usadas"]].map(([k,l]) =>
-          `<button class="filter" type="button" data-filter="${k}" aria-pressed="${filter === k}">${l}</button>`).join("")}
+      <div class="filter-bar">
+        <div class="filters" role="group" aria-label="Filtrar por estado">
+          ${[["all","Todas"],["new","Novas"],["used","Usadas"]].map(([k,l]) =>
+            `<button class="filter" type="button" data-filter="${k}" aria-pressed="${filter === k}">${l}</button>`).join("")}
+        </div>
+        <label class="place-filter">${pinIcon}<span class="sr-only">Localização</span>
+          <select id="placeFilter" aria-label="Filtrar por localização">${placeOptions(place, "Todas as localizações")}</select></label>
       </div>
     </section>
     ${status}
     <section class="grid">
       ${list.map(card).join("")}
     </section>
-    ${!list.length && listingsState !== "loading" ? `<div class="panel empty"><p>${filter === "all" ? "Ainda não há raquetes à venda." : "Não há raquetes " + (filter === "new" ? "novas" : "usadas") + " à venda neste momento."}</p>${ONLINE ? `<button class="btn btn-primary" type="button" id="firstSell">Anunciar uma raquete</button>` : ""}</div>` : ""}
-    <section hidden>
-    </section>`;
+    ${!list.length && listingsState !== "loading" ? `<div class="panel empty"><p>${filter === "all" && !place ? "Ainda não há raquetes à venda." : "Não há raquetes " + (filter === "new" ? "novas " : filter === "used" ? "usadas " : "") + "à venda" + (place ? " em " + esc(place) : "") + " neste momento."}</p>${ONLINE ? `<button class="btn btn-primary" type="button" id="firstSell">Anunciar uma raquete</button>` : ""}</div>` : ""}
+`;
   app.querySelectorAll("[data-filter]").forEach(b => b.onclick = () => { filter = b.dataset.filter; viewShop(); });
+  document.getElementById("placeFilter").onchange = e => { place = e.target.value; viewShop(); };
   const fs = document.getElementById("firstSell"); if (fs) fs.onclick = () => { sellResult = null; go("sell"); };
 }
 
 function viewRacket(r) {
-  const inBasket = basket.includes(r.id);
   const g = galleryItems(r);
   const mine = isMine(r);
   const specs = [
@@ -518,15 +541,13 @@ function viewRacket(r) {
         ${chip(r.condition)}
         <h1>${esc(r.name)}</h1>
         <div class="price">${euro(r.price)}</div>
+        ${placeText(r) ? `<div class="place big">${pinIcon}<span>${esc(placeText(r))}</span></div>` : ""}
         ${r.soldAt ? `<p class="sold-banner">Vendida em ${fmtDate(r.soldAt)}</p>` : ""}
         ${sellerBox}
         <dl class="specs">${specs.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
         ${r.notes ? `<p class="notes">${esc(r.notes)}</p>` : ""}
-        <div class="actions">
-          ${mine || r.soldAt ? "" : `<button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "Está no seu cesto" : "Adicionar ao cesto"}</button>`}
-          ${inBasket ? `<button class="btn btn-dark" type="button" id="goBasket">Ir para o cesto</button>` : ""}
-          ${r.review ? `<a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Ver review no YouTube</a>` : ""}
-        </div>
+        ${r.review ? `<div class="actions"><a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Ver review no YouTube</a></div>` : ""}
+        ${mine || r.soldAt ? "" : contactBox(r)}
         ${mine && !r.soldAt ? `
         <div class="owner-box">
           <b>Este anúncio é seu.</b>
@@ -536,14 +557,29 @@ function viewRacket(r) {
       </div>
     </section>`;
   document.getElementById("back").onclick = () => go("shop");
-  const add = document.getElementById("add");
-  if (add && !inBasket) add.onclick = () => { addToBasket(r.id); viewRacket(r); };
-  const gb = document.getElementById("goBasket"); if (gb) gb.onclick = () => go("basket");
+  const cp = document.getElementById("copyPhone");
+  if (cp) cp.onclick = () => copyText(r.seller.phone.replace(/\s/g, ""), "Número");
   app.querySelectorAll(".thumb").forEach(t => t.onclick = () => {
     document.getElementById("mainPic").innerHTML = g[+t.dataset.i].html;
     app.querySelectorAll(".thumb").forEach(x => x.setAttribute("aria-current", x === t));
   });
   wireRemoveButtons(() => go("account"));
+}
+
+function contactBox(r) {
+  const msg = `Olá! Vi a sua raquete "${r.name}" (${euro(r.price)}) no Padeleiros. Ainda está disponível?`;
+  return `
+    <div class="contact-box">
+      <b>Interessado nesta raquete?</b>
+      <p>Contacte ${esc(r.seller.name)} para combinar o pagamento e a entrega.</p>
+      <div class="contact-actions">
+        <a class="btn btn-primary wa-btn" href="https://wa.me/${esc(r.seller.whatsapp)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 001.8-1.2 2.2 2.2 0 00.1-1.2c0-.1-.2-.2-.5-.3z"/></svg>
+          Enviar mensagem no WhatsApp</a>
+        <div class="phone-line"><span class="phone">${esc(r.seller.phone)}</span><button class="btn btn-ghost" type="button" id="copyPhone">Copiar número</button></div>
+      </div>
+      <p class="hint">Sempre que possível, veja a raquete antes de pagar.</p>
+    </div>`;
 }
 
 /* Two-step remove: first tap asks, second tap removes. */
@@ -564,7 +600,6 @@ function wireRemoveButtons(after) {
       if (!data || !data.length) throw new Error("not yours");
       if (r.photoPaths.length) await sb.storage.from("photos").remove(r.photoPaths);
       ITEMS = ITEMS.filter(x => x.id !== r.id);
-      basket = basket.filter(id => id !== r.id); saveBasket();
       toast("Anúncio removido");
       after();
     } catch (ex) {
@@ -670,7 +705,8 @@ function card(r) {
         <div class="art">${cover(r)}</div>
         <div class="card-body">
           <h2 class="card-name">${esc(r.name)}</h2>
-          <div class="meta">${[r.shapeKnown === false ? "" : shapePT(r.shape), r.weight, basket.includes(r.id) ? "No cesto" : ""].filter(Boolean).map(esc).join(" · ")}</div>
+          <div class="meta">${[r.shapeKnown === false ? "" : shapePT(r.shape), r.weight].filter(Boolean).map(esc).join(" · ")}</div>
+          ${placeText(r) ? `<div class="place">${pinIcon}<span>${esc(placeText(r))}</span></div>` : ""}
           <div class="row"><span class="price">${euro(r.price)}</span>${chip(r.condition)}</div>
         </div>
       </a>
@@ -901,9 +937,14 @@ function viewSell() {
           <div class="previews" id="previews"></div><span class="hint">Frente, verso e quaisquer marcas ou danos.</span></div>
         <div class="field"><label for="s-notes">Descrição</label><textarea id="s-notes" rows="4" maxlength="600" placeholder="Quanto foi usada, marcas, o que inclui"></textarea></div>
         <div class="field"><label for="s-review">Link de review no YouTube (opcional)</label><input id="s-review" inputmode="url" placeholder="https://www.youtube.com/watch?v=…"></div>
-        <div class="field"><label for="s-phone">O seu número MB WAY</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(lastPhone)}" required>
+        <div class="two">
+          <div class="field"><label for="s-place">Localização</label>
+            <select id="s-place" required>${placeOptions(store("bandeja-last-place", ""), "Escolha a ilha ou distrito")}</select></div>
+          <div class="field"><label for="s-town">Localidade (opcional)</label><input id="s-town" maxlength="60" placeholder="Ponta Delgada" value="${esc(store("bandeja-last-town", ""))}"></div>
+        </div>
+        <div class="field"><label for="s-phone">O seu telemóvel (WhatsApp)</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(lastPhone)}" required>
           <span class="hint">O anúncio aparece com o nome do seu perfil: <b>${esc(displayName(myProfile()))}</b>.</span></div>
-        <label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o nome do meu perfil e o meu número de telemóvel ficam visíveis no anúncio, para que os compradores me paguem por MB WAY e me contactem por WhatsApp.</span></label>
+        <label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o nome do meu perfil e o meu número de telemóvel ficam visíveis no anúncio, para que os compradores interessados me contactem por WhatsApp ou telefone.</span></label>
         <p class="error" id="sellError" hidden></p>
         <button class="btn btn-primary" type="submit" id="sellSubmit" style="width:100%;margin-top:14px">Anunciar a minha raquete</button>
       </form>
@@ -911,7 +952,8 @@ function viewSell() {
         <div style="font-weight:700;margin-bottom:6px">Como funciona a venda</div>
         <ol class="steps">
           <li>A sua raquete aparece logo na página inicial.</li>
-          <li>Os compradores pagam-lhe diretamente por MB WAY e contactam-no por WhatsApp.</li>
+          <li>Quem estiver interessado contacta-o por WhatsApp ou telefone.</li>
+          <li>Combinam diretamente o pagamento e a entrega.</li>
           <li>Combina o levantamento ou o envio com o comprador.</li>
           <li>Quando vender, remova o anúncio em <a href="#account">A minha conta</a>.</li>
         </ol>
@@ -940,7 +982,8 @@ function viewSell() {
     if (!(price > 0 && price < 5000)) return fail("Introduza um preço em euros, por exemplo 120.");
     if (review && !safeYouTube(review)) return fail("O link da review tem de ser um link do YouTube que comece por https://.");
     if (!files.length) return fail("Adicione pelo menos uma foto da raquete.");
-    if (!/^9[1236]\d{7}$/.test(phone)) return fail("Introduza o seu número MB WAY: 9 dígitos, a começar por 91, 92, 93 ou 96.");
+    if (!ALL_PLACES.includes(document.getElementById("s-place").value)) return fail("Escolha a localização da raquete.");
+    if (!/^9[1236]\d{7}$/.test(phone)) return fail("Introduza o seu telemóvel: 9 dígitos, a começar por 91, 92, 93 ou 96.");
     if (!document.getElementById("s-consent").checked) return fail("Marque a caixa para aceitar mostrar o seu nome e número.");
     if (!user) return viewLogin();
     const btn = document.getElementById("sellSubmit");
@@ -959,9 +1002,10 @@ function viewSell() {
       const { data: newId, error } = await sb.rpc("create_listing", {
         p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
         p_shape: document.getElementById("s-shape").value, p_weight: v("s-weight"), p_notes: v("s-notes"),
-        p_review: review, p_photos: uploaded, p_seller_phone: phone });
+        p_review: review, p_photos: uploaded, p_seller_phone: phone,
+        p_location: document.getElementById("s-place").value, p_town: v("s-town") });
       if (error) throw error;
-      put("bandeja-last-phone", phone);
+      put("bandeja-last-phone", phone); put("bandeja-last-place", document.getElementById("s-place").value); put("bandeja-last-town", v("s-town"));
       sellResult = { id: newId, name: v("s-name") };
       viewSell(); window.scrollTo(0, 0);
       loadListings();
@@ -988,156 +1032,17 @@ function shrink(file) {
   });
 }
 
-/* ----- basket and checkout ----- */
-function groups() {
-  const map = new Map();
-  basket.map(byId).filter(Boolean).forEach(r => {
-    if (!map.has(r.seller.key)) map.set(r.seller.key, { seller: r.seller, items: [] });
-    map.get(r.seller.key).items.push(r);
-  });
-  return [...map.values()].map(g => {
-    const sub = g.items.reduce((s, r) => s + r.price, 0);
-    const ship = g.seller.shop ? (SHOP.shipping.find(s => s.id === checkout.delivery) || SHOP.shipping[0]).price : 0;
-    return { ...g, sub, ship, total: sub + ship };
-  });
-}
-
-function viewBasket() {
-  const items = basket.map(byId).filter(Boolean);
-  if (!items.length) {
-    app.innerHTML = `<h1 class="page-title">Cesto</h1>
-      <div class="panel empty"><p>${listingsState === "loading" && basket.length ? "A carregar o seu cesto…" : "O seu cesto está vazio."}</p><button class="btn btn-primary" type="button" id="browse">Ver raquetes</button></div>`;
-    document.getElementById("browse").onclick = () => go("shop");
-    return;
-  }
-  const gs = groups();
-  const hasShop = gs.some(g => g.seller.shop);
-  const total = gs.reduce((s, g) => s + g.total, 0);
-  app.innerHTML = `
-    <button class="back" type="button" id="back">← Continuar a comprar</button>
-    <h1 class="page-title">Cesto</h1>
-    <div class="basket-layout">
-      <div class="panel">
-        ${items.map(r => `
-          <div class="line">
-            <a class="mini" href="#r-${r.id}" aria-label="${esc(r.name)}">${cover(r)}</a>
-            <div style="min-width:0">
-              <div class="line-name">${esc(r.name)}</div>
-              <div class="meta">${esc(COND_PT[r.condition])} · vendida por ${esc(r.seller.name)}</div>
-              <button class="remove" type="button" data-remove="${r.id}">Remover</button>
-            </div>
-            <div class="price">${euro(r.price)}</div>
-          </div>`).join("")}
-      </div>
-      <div class="panel">
-        <form id="checkoutForm" novalidate>
-          ${hasShop ? `<div class="field">
-            <span id="dlabel" style="font-weight:600;font-size:14px">Entrega das raquetes da loja ${esc(SHOP.name)}</span>
-            <div class="radio-group" role="radiogroup" aria-labelledby="dlabel">
-              ${SHOP.shipping.map(s => `<label class="radio"><input type="radio" name="delivery" id="del-${s.id}" value="${s.id}" ${checkout.delivery === s.id ? "checked" : ""}> <span style="flex:1">${esc(s.label)}</span> <span class="meta">${s.price ? euro(s.price) : "Grátis"}</span></label>`).join("")}
-            </div>
-          </div>` : ""}
-          ${gs.some(g => !g.seller.shop) ? `<p class="hint">Nas raquetes de outros vendedores, combina o levantamento ou o envio com o vendedor.</p>` : ""}
-          <div class="field"><label for="cname">O seu nome</label><input id="cname" autocomplete="name" value="${esc(checkout.name)}" required></div>
-          <div class="field"><label for="cphone">O seu número MB WAY</label><input id="cphone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(checkout.phone)}" required><span class="hint">Para o vendedor identificar o seu pagamento.</span></div>
-          <div class="field" id="addrField" ${hasShop && checkout.delivery !== "pickup" ? "" : "hidden"}><label for="caddr">Morada de envio</label><textarea id="caddr" rows="3" autocomplete="street-address">${esc(checkout.address)}</textarea></div>
-          ${gs.map(g => `<div class="sumrow"><span>${esc(g.seller.name)}${g.ship ? " (com envio)" : ""}</span><span>${euro(g.total)}</span></div>`).join("")}
-          <div class="sumrow total"><span>Total</span><span class="price">${euro(total)}</span></div>
-          ${gs.length > 1 ? `<p class="hint">Vai pagar a cada vendedor separadamente.</p>` : ""}
-          <div class="mbway" style="margin-top:14px"><span class="mbway-badge">MB WAY</span><span class="meta">Pagamento apenas por MB WAY</span></div>
-          <p class="error" id="formError" hidden></p>
-          <button class="btn btn-primary" type="submit" style="width:100%">Fazer encomenda e pagar com MB WAY</button>
-        </form>
-      </div>
-    </div>`;
-  document.getElementById("back").onclick = () => go("shop");
-  app.querySelectorAll("[data-remove]").forEach(b => b.onclick = () => { removeFromBasket(b.dataset.remove); viewBasket(); });
-  const form = document.getElementById("checkoutForm");
-  form.querySelectorAll('input[name="delivery"]').forEach(i => i.onchange = () => { readForm(); viewBasket(); });
-  form.onsubmit = e => {
-    e.preventDefault(); readForm();
-    const err = document.getElementById("formError");
-    const digits = checkout.phone.replace(/\D/g, "").replace(/^351/, "");
-    let msg = "";
-    if (!checkout.name.trim()) msg = "Introduza o seu nome.";
-    else if (!/^9[1236]\d{7}$/.test(digits)) msg = "Introduza um número de telemóvel português com 9 dígitos, a começar por 91, 92, 93 ou 96.";
-    else if (hasShop && checkout.delivery !== "pickup" && !checkout.address.trim()) msg = "Introduza a morada de envio ou escolha levantamento em mão.";
-    if (msg) { err.textContent = msg; err.hidden = false; return; }
-    placeOrder(digits, hasShop);
-  };
-}
-
-function readForm() {
-  const g = id => document.getElementById(id);
-  const d = document.querySelector('input[name="delivery"]:checked');
-  checkout = { delivery: d ? d.value : checkout.delivery, name: g("cname").value, phone: g("cphone").value,
-               address: g("caddr") ? g("caddr").value : "" };
-}
-
-function placeOrder(phoneDigits) {
-  const ref = "PD-" + Math.floor(1000 + Math.random() * 9000);
-  const delivery = SHOP.shipping.find(s => s.id === checkout.delivery);
-  order = { ref, groups: groups().map(g => ({ ...g, text: [
-    `Nova encomenda ${ref}`,
-    ...g.items.map(r => `- ${r.name} (${COND_PT[r.condition]}) ${euro(r.price)}`),
-    g.seller.shop ? `Entrega: ${delivery.label}${delivery.price ? " " + euro(delivery.price) : ""}` : "Entrega: a combinar consigo",
-    `Total: ${euro(g.total)}`,
-    `Nome: ${checkout.name.trim()}`,
-    `Telemóvel MB WAY: ${phoneDigits}`,
-    g.seller.shop && checkout.delivery !== "pickup" ? `Morada: ${checkout.address.trim()}` : ""
-  ].filter(Boolean).join("\n") })) };
-  basket = []; saveBasket();
-  go("order");
-}
-
-function viewOrder() {
-  if (!order) return go("shop");
-  const many = order.groups.length > 1;
-  app.innerHTML = `
-    <h1 class="page-title">Encomenda ${esc(order.ref)}</h1>
-    ${many ? `<p class="status" style="margin-top:-8px">O seu cesto tem raquetes de ${order.groups.length} vendedores. Pague a cada um separadamente.</p>` : ""}
-    <div class="basket-layout">
-      <div>
-        ${order.groups.map((g, i) => `
-        <div class="pay-box">
-          <span class="mbway-badge" style="display:inline-block;margin-bottom:10px">MB WAY</span>
-          <h2>Pagar a ${esc(g.seller.name)}</h2>
-          <div>${esc(g.items.map(r => r.name).join(", "))}</div>
-          <div class="big">${euro(g.total)}</div>
-          <div class="pay-grid">
-            <div><div class="label">Para o número</div><div class="val">${esc(g.seller.mbway)}</div><button class="copy" type="button" data-copy="${esc(g.seller.mbway.replace(/\s/g,""))}" data-label="Número">Copiar número</button></div>
-            <div><div class="label">Mensagem / referência</div><div class="val">${esc(order.ref)}</div><button class="copy" type="button" data-copy="${esc(order.ref)}" data-label="Referência">Copiar referência</button></div>
-          </div>
-          <a class="btn btn-primary" href="https://wa.me/${esc(g.seller.whatsapp)}?text=${encodeURIComponent(g.text)}" target="_blank" rel="noopener">Enviar encomenda a ${esc(g.seller.name)} por WhatsApp</a>
-          <button class="copy" type="button" data-copy="${esc(g.text)}" data-label="Detalhes da encomenda" style="margin-left:8px">Copiar detalhes</button>
-        </div>`).join("")}
-      </div>
-      <div class="panel">
-        <div style="font-weight:700;margin-bottom:8px">Próximos passos</div>
-        <ol class="steps">
-          <li>Abra a app MB WAY e escolha <b>Enviar dinheiro</b>.</li>
-          <li>Envie cada valor para o número indicado, com <b>${esc(order.ref)}</b> na mensagem.</li>
-          <li>Envie a encomenda por WhatsApp para o vendedor identificar o pagamento.</li>
-          <li>O vendedor confirma quando receber o pagamento e combinam o levantamento ou o envio.</li>
-        </ol>
-      </div>
-    </div>`;
-  app.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy, b.dataset.label));
-}
-
 /* ---------- routing ---------- */
 function go(where) { if (location.hash === "#" + where) render(); else location.hash = where; }
 function render(scroll = true) {
   const h = location.hash.slice(1);
   if (scroll) window.scrollTo(0, 0);
-  if (user && profilesState === "ok" && !myProfile() && !["setup", "basket", "order", "login"].includes(h)) {
+  if (user && profilesState === "ok" && !myProfile() && !["setup", "login"].includes(h)) {
     try { sessionStorage.setItem("bandeja-after-setup", h || "shop"); } catch (e) {}
     return viewSetup();
   }
   if (h.startsWith("r-") && byId(h.slice(2))) viewRacket(byId(h.slice(2)));
   else if (h.startsWith("r-u") && listingsState === "loading") app.innerHTML = `<p class="status">A carregar raquete…</p>`;
-  else if (h === "basket") viewBasket();
-  else if (h === "order") viewOrder();
   else if (h === "sell") viewSell();
   else if (h === "login") viewLogin();
   else if (h === "setup") viewSetup();
@@ -1146,10 +1051,7 @@ function render(scroll = true) {
   else viewShop();
 }
 window.addEventListener("hashchange", () => render());
-document.getElementById("basketBtn").onclick = () => go("basket");
 document.getElementById("sellBtn").onclick = () => { sellResult = null; go("sell"); };
-document.getElementById("footContact").textContent = RACKETS.length ? "MB WAY da loja: " + SHOP.mbwayNumber : "";
-document.getElementById("count").textContent = basket.length;
 function updateAccountBtn() {
   const b = document.getElementById("accountBtn");
   b.hidden = !sb;

@@ -1,34 +1,45 @@
-# Bandeja — Padel Rackets
+# Bandeja — Raquetes de Padel
 
-A simple one-page shop for selling padel rackets, new and used. Payment is by MB WAY.
+Loja simples de raquetes de padel, novas e usadas, em português de Portugal. O pagamento é por MB WAY.
 
-## What it does
+Site: https://tomasgoulart.github.io/padelAzoresShop/
 
-- **Front page:** a grid of rackets showing name, condition, price and a YouTube review link.
-- **Racket page:** more photos, specs, and an **Add to basket** button.
-- **Basket and checkout:** the buyer picks delivery and enters their name and MB WAY phone number.
-- **Payment:** the buyer sees the total, your MB WAY number and an order reference, then sends you the order on WhatsApp with one tap.
+## O que faz
 
-There is no server or database. The whole site is one file, `index.html`.
+- **Página inicial:** grelha de raquetes com nome, estado, preço, vendedor e link para uma review no YouTube.
+- **Página da raquete:** mais fotos, características e o botão **Adicionar ao cesto**.
+- **Cesto:** o comprador indica o nome e o número MB WAY. Não precisa de conta para comprar.
+- **Pagamento:** cada vendedor recebe diretamente por MB WAY. O comprador vê o valor, o número e uma referência, e envia a encomenda ao vendedor por WhatsApp.
+- **Vender raquete:** quem entra com a conta Google pode anunciar raquetes com até 4 fotos. Os anúncios aparecem logo.
+- **A minha conta:** lista os anúncios da pessoa e permite removê-los.
 
-## Editing the shop
+O site é um único ficheiro, `index.html`. Os anúncios, as fotos e as contas ficam no Supabase.
 
-Open `index.html` and find the `SHOP SETTINGS` section near the top of the `<script>`.
+## Definições
 
-- `SHOP.mbwayNumber` is your MB WAY number, shown to buyers.
-- `SHOP.whatsapp` is the same number with country code, digits only, for example `351912345678`.
-- `SHOP.shipping` holds the delivery options and their prices.
-- `RACKETS` is your list of rackets. Each racket has these fields:
-  - `id`: a short unique name, using letters and digits only
-  - `name`, `price`, `weight`, `core`, `face`, `year`, `notes`
-  - `condition`: one of `New`, `Like new`, `Very good`, `Good` or `Fair`
-  - `shape`: one of `round`, `teardrop` or `diamond`
-  - `review`: a YouTube link
-  - `colors`: three colours used to draw the placeholder pictures
+No início do `<script>` em `index.html`:
 
-## Publishing with GitHub Pages
+- `SHOP.mbwayNumber` e `SHOP.whatsapp`: os números da loja, para as raquetes da própria loja.
+- `SHOP.shipping`: opções de entrega das raquetes da loja.
+- `SUPABASE`: endereço e chave pública do projeto Supabase. A chave pública pode estar no site.
+- `RACKETS`: as raquetes da própria loja (os valores de `condition` e `shape` ficam em inglês).
 
-1. Push this folder to a GitHub repository.
-2. In the repository, go to **Settings → Pages**.
-3. Choose **Deploy from a branch**, then select `main` and `/ (root)`.
-4. Your site will appear at `https://<your-username>.github.io/<repo-name>/`.
+## Base de dados (Supabase)
+
+Corra estes ficheiros, por esta ordem, no **SQL Editor** do Supabase:
+
+1. `supabase-setup.sql`: cria a tabela de anúncios e o espaço para as fotos.
+2. `supabase-login.sql`: liga os anúncios às contas e só deixa quem entrou anunciar e remover os seus anúncios.
+
+Para apagar um anúncio de spam: **Table Editor → listings**, apague a linha.
+
+## Login com Google
+
+1. Na Google Cloud Console, crie um **ID de cliente OAuth** do tipo **Aplicação Web**, com este URI de redirecionamento autorizado:
+   `https://llyqlkdndiupwvczjenj.supabase.co/auth/v1/callback`
+2. No Supabase, em **Authentication → Sign In / Providers → Google**, ative o Google e cole o ID de cliente e o segredo.
+3. No Supabase, em **Authentication → URL Configuration**, defina o **Site URL** como `https://tomasgoulart.github.io/padelAzoresShop/` e adicione o mesmo endereço em **Redirect URLs**.
+
+## Publicar com GitHub Pages
+
+Em **Settings → Pages**, escolha **Deploy from a branch**, depois `main` e `/ (root)`.

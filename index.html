@@ -93,7 +93,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
 .back:hover { color: var(--fg); }
 
 .detail { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
-@media (max-width: 760px) { .detail { grid-template-columns: 1fr; gap: 20px; } }
+@media (max-width: 760px) { .detail { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
 .gallery-main { background: var(--art-bg); border-radius: 16px; aspect-ratio: 1 / 1; max-width: 100%; display: grid; place-items: center; }
 .gallery-main svg { width: 58%; height: auto; max-height: 90%; }
 .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
@@ -112,7 +112,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
 .page-title { font: 800 clamp(30px, 5vw, 42px)/1 var(--font-display); text-transform: uppercase; margin: 0 0 18px; }
 .basket-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
-@media (max-width: 760px) { .basket-layout { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .basket-layout { grid-template-columns: minmax(0, 1fr); } }
 .line { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .line:last-child { border-bottom: 0; }
 .line .mini { background: var(--art-bg); border-radius: 8px; aspect-ratio: 1/1; display: grid; place-items: center; }
@@ -156,9 +156,16 @@ footer { border-top: 1px solid var(--line); max-width: 1120px; margin: 0 auto; p
 .seller { font-size: 13px; color: var(--muted); }
 .seller b { color: var(--fg); font-weight: 600; }
 .sell-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start; }
-@media (max-width: 760px) { .sell-layout { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .sell-layout { grid-template-columns: minmax(0, 1fr); } }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
+@media (max-width: 480px) {
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .brand-name { font-size: 22px; }
+  .top-actions { gap: 6px; }
+  .sell-btn, .basket-btn { padding: 6px 10px; font-size: 13px; }
+}
+form input, form select, form textarea { width: 100%; min-width: 0; }
+form .radio input, form .check input { width: auto; }
 form select { border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; }
 .previews { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .previews img { aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; width: 100%; }
@@ -176,6 +183,17 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 .pay-box h2 { font: 800 22px var(--font-display); text-transform: uppercase; margin: 0 0 8px; }
 .pay-box .btn-primary { margin-top: 16px; display: inline-block; text-decoration: none; }
 .status { color: var(--muted); font-size: 14px; }
+.topbar-inner, .top-actions { flex-wrap: wrap; }
+.owner-box { margin-top: 24px; padding: 14px 16px; border: 1.5px dashed var(--line); border-radius: 12px; }
+.owner-box .hint { margin: 4px 0 0; }
+.google-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--surface); border: 1.5px solid var(--line); color: var(--fg); }
+.google-btn:hover { border-color: var(--muted); }
+.login-panel { max-width: 520px; display: grid; gap: 12px; justify-items: start; }
+.login-panel p { margin: 0; }
+.mini-link { display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; min-width: 0; }
+.mini-link .mini { flex: none; width: 52px; aspect-ratio: 1/1; background: var(--art-bg); border-radius: 8px; display: grid; place-items: center; overflow: hidden; }
+.mini-link .mini svg { width: 60%; height: auto; }
+.mini-link .mini img { width: 100%; height: 100%; object-fit: cover; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 600; z-index: 20; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -190,6 +208,7 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
     </a>
     <div class="top-actions">
       <button class="sell-btn" id="sellBtn" type="button">Vender raquete</button>
+      <button class="basket-btn" id="accountBtn" type="button" hidden>Entrar</button>
       <button class="basket-btn" id="basketBtn" type="button">Cesto <span class="count" id="count">0</span></button>
     </div>
   </div>
@@ -204,6 +223,7 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 
 <div class="toast" id="toast" hidden></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script>
 /* ============================================================
    SHOP SETTINGS — edit these
@@ -286,36 +306,35 @@ let ITEMS = RACKETS.map(r => ({ ...r, photos: r.photos || [], seller: SHOP_SELLE
 let listingsState = ONLINE ? "loading" : "off";
 const byId = id => ITEMS.find(r => r.id === id);
 
-/* ---------- database calls ---------- */
-const H = () => ({ apikey: SUPABASE.key, Authorization: "Bearer " + SUPABASE.key });
-async function api(path, opts = {}) {
-  const res = await fetch(SUPABASE.url + path, { ...opts, headers: { ...H(), ...(opts.headers || {}) } });
-  if (!res.ok) {
-    let msg = res.status + "";
-    try { const j = await res.json(); msg = j.message || j.error || msg; } catch (e) {}
-    throw new Error(msg);
-  }
-  const t = await res.text();
-  return t ? JSON.parse(t) : null;
-}
-const photoUrl = p => `${SUPABASE.url}/storage/v1/object/public/photos/${encodeURIComponent(p)}`;
+/* ---------- database and login ---------- */
+const sb = ONLINE && window.supabase
+  ? window.supabase.createClient(SUPABASE.url, SUPABASE.key, { auth: { flowType: "pkce", detectSessionInUrl: true, persistSession: true } })
+  : null;
+let user = null;
+const PHOTO_RE = /^[0-9a-f-]{36}\/[a-z0-9-]+\.jpg$/;
+const photoUrl = p => `${SUPABASE.url}/storage/v1/object/public/photos/${p.split("/").map(encodeURIComponent).join("/")}`;
 
 function fromRow(row) {
   const pal = PALETTES[parseInt(row.id.slice(0, 2), 16) % PALETTES.length];
+  const paths = (row.photos || []).filter(p => PHOTO_RE.test(p));
   return {
-    id: "u" + row.id, uuid: row.id, remote: true,
+    id: "u" + row.id, uuid: row.id, remote: true, userId: row.user_id,
     name: row.name, condition: row.condition, price: Number(row.price),
     shape: row.shape || "teardrop", shapeKnown: !!row.shape, weight: row.weight || "", notes: row.notes || "",
     review: safeYouTube(row.review), colors: pal,
-    photos: (row.photos || []).filter(p => /^[a-z0-9-]+\.jpg$/.test(p)).map(photoUrl),
+    photoPaths: paths, photos: paths.map(photoUrl),
     seller: { key: "s:" + row.seller_phone, name: row.seller_name, mbway: fmtPhone(row.seller_phone), whatsapp: "351" + row.seller_phone }
   };
 }
+const isMine = r => !!(user && r.remote && r.userId === user.id);
 
 async function loadListings() {
-  if (!ONLINE) return;
+  if (!sb) { listingsState = ONLINE ? "error" : "off"; render(false); return; }
   try {
-    const rows = await api("/rest/v1/listings?select=id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone&order=created_at.desc&limit=500");
+    const { data: rows, error } = await sb.from("listings")
+      .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id")
+      .order("created_at", { ascending: false }).limit(500);
+    if (error) throw error;
     ITEMS = [...rows.map(fromRow), ...RACKETS.map(r => ({ ...r, photos: r.photos || [], seller: SHOP_SELLER, remote: false }))];
     listingsState = "ok";
   } catch (e) {
@@ -375,7 +394,6 @@ function store(key, fallback) { try { return JSON.parse(localStorage.getItem(key
 function put(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
 
 let basket = store("bandeja-basket", []);
-let myListings = store("bandeja-my-listings", []);   // [{id, code, name}]
 function saveBasket() { put("bandeja-basket", basket); document.getElementById("count").textContent = basket.length; }
 function addToBasket(id) { if (!basket.includes(id)) basket.push(id); saveBasket(); toast("Adicionada ao cesto"); }
 function removeFromBasket(id) { basket = basket.filter(x => x !== id); saveBasket(); }
@@ -442,7 +460,7 @@ function viewShop() {
 function viewRacket(r) {
   const inBasket = basket.includes(r.id);
   const g = galleryItems(r);
-  const mine = myListings.find(m => m.id === r.uuid);
+  const mine = isMine(r);
   const specs = [
     ["Estado", `${COND_PT[r.condition]}. ${CONDITION_INFO[r.condition]}`],
     ["Formato", r.shapeKnown === false ? "" : shapePT(r.shape)],
@@ -465,69 +483,143 @@ function viewRacket(r) {
         <dl class="specs">${specs.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
         ${r.notes ? `<p class="notes">${esc(r.notes)}</p>` : ""}
         <div class="actions">
-          <button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "Está no seu cesto" : "Adicionar ao cesto"}</button>
+          ${mine ? "" : `<button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "Está no seu cesto" : "Adicionar ao cesto"}</button>`}
           ${inBasket ? `<button class="btn btn-dark" type="button" id="goBasket">Ir para o cesto</button>` : ""}
           ${r.review ? `<a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Ver review no YouTube</a>` : ""}
         </div>
-        ${r.remote ? `
-        <details class="owner" ${mine ? "open" : ""}>
-          <summary>Este anúncio é seu? Remova-o</summary>
-          <p class="hint">Introduza o código que recebeu ao anunciar esta raquete, por exemplo depois de a vender.</p>
-          <form class="inline-form" id="removeForm">
-            <input id="removeCode" placeholder="Código do anúncio" autocomplete="off" value="${esc(mine ? mine.code : "")}" aria-label="Código do anúncio">
-            <button class="btn btn-dark" type="submit">Remover anúncio</button>
-          </form>
-          <p class="error" id="removeError" hidden></p>
-        </details>` : ""}
+        ${mine ? `
+        <div class="owner-box">
+          <b>Este anúncio é seu.</b>
+          <p class="hint">Quando vender a raquete, remova o anúncio para que deixe de aparecer.</p>
+          <div class="inline-form">${removeButton(r)}</div>
+        </div>` : ""}
       </div>
     </section>`;
   document.getElementById("back").onclick = () => go("shop");
-  if (!inBasket) document.getElementById("add").onclick = () => { addToBasket(r.id); viewRacket(r); };
+  const add = document.getElementById("add");
+  if (add && !inBasket) add.onclick = () => { addToBasket(r.id); viewRacket(r); };
   const gb = document.getElementById("goBasket"); if (gb) gb.onclick = () => go("basket");
   app.querySelectorAll(".thumb").forEach(t => t.onclick = () => {
     document.getElementById("mainPic").innerHTML = g[+t.dataset.i].html;
     app.querySelectorAll(".thumb").forEach(x => x.setAttribute("aria-current", x === t));
   });
-  const rf = document.getElementById("removeForm");
-  if (rf) rf.onsubmit = async e => {
-    e.preventDefault();
-    const err = document.getElementById("removeError");
-    const code = document.getElementById("removeCode").value.trim();
-    if (!code) { err.textContent = "Introduza o código do anúncio."; err.hidden = false; return; }
+  wireRemoveButtons(() => go("account"));
+}
+
+/* Two-step remove: first tap asks, second tap removes. */
+const removeButton = r => `<button class="btn btn-ghost" type="button" data-del="${esc(r.id)}">Remover anúncio</button>`;
+function wireRemoveButtons(after) {
+  app.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    if (b.dataset.armed !== "1") {
+      b.dataset.armed = "1"; b.textContent = "Confirmar remoção"; b.classList.replace("btn-ghost", "btn-dark");
+      setTimeout(() => { if (b.isConnected && b.dataset.armed === "1") { b.dataset.armed = ""; b.textContent = "Remover anúncio"; b.classList.replace("btn-dark", "btn-ghost"); } }, 4000);
+      return;
+    }
+    const r = byId(b.dataset.del);
+    if (!r) return;
+    b.disabled = true; b.textContent = "A remover…";
     try {
-      const ok = await api("/rest/v1/rpc/delete_listing", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p_id: r.uuid, p_code: code }) });
-      if (!ok) { err.textContent = "Esse código não corresponde a este anúncio. Verifique-o e tente de novo."; err.hidden = false; return; }
-      myListings = myListings.filter(m => m.id !== r.uuid); put("bandeja-my-listings", myListings);
-      toast("Anúncio removido"); go("shop"); loadListings();
-    } catch (ex) { err.textContent = "Não foi possível remover o anúncio agora. Verifique a ligação e tente de novo."; err.hidden = false; }
-  };
+      const { data, error } = await sb.from("listings").delete().eq("id", r.uuid).select("id");
+      if (error) throw error;
+      if (!data || !data.length) throw new Error("not yours");
+      if (r.photoPaths.length) await sb.storage.from("photos").remove(r.photoPaths);
+      ITEMS = ITEMS.filter(x => x.id !== r.id);
+      basket = basket.filter(id => id !== r.id); saveBasket();
+      toast("Anúncio removido");
+      after();
+    } catch (ex) {
+      b.disabled = false; b.dataset.armed = ""; b.textContent = "Remover anúncio";
+      toast("Não foi possível remover o anúncio. Tente de novo.");
+    }
+  });
+}
+
+/* ----- login ----- */
+const googleIcon = `<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>`;
+
+function viewLogin(reason) {
+  app.innerHTML = `
+    <h1 class="page-title">Entrar</h1>
+    <div class="panel login-panel">
+      <p>${esc(reason || "Entre com a sua conta Google para anunciar raquetes e gerir os seus anúncios.")}</p>
+      <button class="btn google-btn" type="button" id="googleLogin">${googleIcon} Continuar com Google</button>
+      <p class="hint">Não precisa de conta para comprar. Só usamos o seu nome e email para identificar os seus anúncios.</p>
+      <p class="error" id="loginError" hidden></p>
+    </div>`;
+  document.getElementById("googleLogin").onclick = signIn;
+}
+
+async function signIn() {
+  const err = document.getElementById("loginError");
+  try { sessionStorage.setItem("bandeja-after-login", location.hash.slice(1) === "login" ? "sell" : (location.hash.slice(1) || "shop")); } catch (e) {}
+  const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
+  if (error && err) { err.textContent = "Não foi possível abrir o login Google (" + error.message + "). Tente de novo."; err.hidden = false; }
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  toast("Sessão terminada");
+  go("shop");
+}
+
+function firstName() {
+  const m = (user && user.user_metadata) || {};
+  return (m.full_name || m.name || "").split(" ")[0].slice(0, 40);
+}
+
+function viewAccount() {
+  if (!user) return viewLogin();
+  const mine = ITEMS.filter(isMine);
+  const m = user.user_metadata || {};
+  app.innerHTML = `
+    <h1 class="page-title">A minha conta</h1>
+    <div class="sell-layout">
+      <div class="panel">
+        <div style="font-weight:700;margin-bottom:6px">Os meus anúncios</div>
+        ${listingsState === "loading" ? `<p class="status">A carregar…</p>` : mine.length ? `
+        <div class="mine">${mine.map(r => `
+          <div class="mine-row">
+            <a class="mini-link" href="#r-${esc(r.id)}"><span class="mini">${cover(r)}</span><span style="min-width:0"><b>${esc(r.name)}</b><br><span class="meta">${euro(r.price)} · ${esc(COND_PT[r.condition])}</span></span></a>
+            ${removeButton(r)}
+          </div>`).join("")}</div>` : `<p class="status">Ainda não tem anúncios.</p>`}
+        <div class="actions"><button class="btn btn-primary" type="button" id="newListing">Anunciar uma raquete</button></div>
+      </div>
+      <div class="panel">
+        <div style="font-weight:700;margin-bottom:6px">Conta Google</div>
+        <p style="margin:0">${esc(m.full_name || m.name || "")}</p>
+        <p class="meta" style="margin:0 0 14px">${esc(user.email || "")}</p>
+        <button class="btn btn-ghost" type="button" id="logout">Terminar sessão</button>
+      </div>
+    </div>`;
+  document.getElementById("newListing").onclick = () => { sellResult = null; go("sell"); };
+  document.getElementById("logout").onclick = signOut;
+  wireRemoveButtons(() => viewAccount());
 }
 
 /* ----- selling ----- */
 let sellResult = null;
 function viewSell() {
-  if (!ONLINE) {
+  if (!sb) {
     app.innerHTML = `<h1 class="page-title">Vender raquete</h1>
       <div class="panel"><p>As vendas ainda não estão ativas. O dono da loja tem de adicionar os dados da base de dados nas definições.</p></div>`;
     return;
   }
+  if (!user) return viewLogin("Para anunciar uma raquete, entre com a sua conta Google. Assim pode gerir e remover os seus anúncios quando quiser.");
   if (sellResult) {
     const r = sellResult;
     app.innerHTML = `<h1 class="page-title">A sua raquete está anunciada</h1>
       <div class="panel" style="max-width:640px">
         <p><b>${esc(r.name)}</b> já está na página inicial.</p>
-        <p>O código do seu anúncio é:</p>
-        <p><span class="code" id="theCode">${esc(r.code)}</span> <button class="btn btn-ghost" type="button" id="copyCode">Copiar</button></p>
-        <p class="hint">Guarde este código. Vai precisar dele para remover o anúncio quando vender a raquete. Este browser também o guarda.</p>
+        <p class="hint">Quando a vender, remova o anúncio em <b>A minha conta</b>.</p>
         <div class="actions">
           <a class="btn btn-primary" href="#r-u${esc(r.id)}" style="text-decoration:none">Ver o seu anúncio</a>
           <button class="btn btn-ghost" type="button" id="another">Anunciar outra raquete</button>
         </div>
       </div>`;
-    document.getElementById("copyCode").onclick = () => copyText(r.code, "Código");
     document.getElementById("another").onclick = () => { sellResult = null; viewSell(); };
     return;
   }
+  const lastPhone = store("bandeja-last-phone", "");
   app.innerHTML = `
     <button class="back" type="button" id="back">← Todas as raquetes</button>
     <h1 class="page-title">Vender raquete</h1>
@@ -550,10 +642,9 @@ function viewSell() {
         <div class="field"><label for="s-notes">Descrição</label><textarea id="s-notes" rows="4" maxlength="600" placeholder="Quanto foi usada, marcas, o que inclui"></textarea></div>
         <div class="field"><label for="s-review">Link de review no YouTube (opcional)</label><input id="s-review" inputmode="url" placeholder="https://www.youtube.com/watch?v=…"></div>
         <div class="two">
-          <div class="field"><label for="s-seller">O seu nome</label><input id="s-seller" maxlength="40" autocomplete="given-name" required></div>
-          <div class="field"><label for="s-phone">O seu número MB WAY</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" required></div>
+          <div class="field"><label for="s-seller">O seu nome</label><input id="s-seller" maxlength="40" autocomplete="given-name" value="${esc(firstName())}" required></div>
+          <div class="field"><label for="s-phone">O seu número MB WAY</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(lastPhone)}" required></div>
         </div>
-        <div class="hp" aria-hidden="true"><label for="s-web">Site</label><input id="s-web" tabindex="-1" autocomplete="off"></div>
         <label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o meu nome e número de telemóvel ficam visíveis no anúncio, para que os compradores me paguem por MB WAY e me contactem por WhatsApp.</span></label>
         <p class="error" id="sellError" hidden></p>
         <button class="btn btn-primary" type="submit" id="sellSubmit" style="width:100%;margin-top:14px">Anunciar a minha raquete</button>
@@ -564,10 +655,8 @@ function viewSell() {
           <li>A sua raquete aparece logo na página inicial.</li>
           <li>Os compradores pagam-lhe diretamente por MB WAY e contactam-no por WhatsApp.</li>
           <li>Combina o levantamento ou o envio com o comprador.</li>
-          <li>Quando vender, remova o anúncio com o seu código.</li>
+          <li>Quando vender, remova o anúncio em <a href="#account">A minha conta</a>.</li>
         </ol>
-        ${myListings.length ? `<div style="font-weight:700;margin:18px 0 4px">Os seus anúncios neste dispositivo</div>
-          <div class="mine">${myListings.map(m => `<div class="mine-row"><a href="#r-u${esc(m.id)}">${esc(m.name)}</a><span class="meta">Código ${esc(m.code)}</span></div>`).join("")}</div>` : ""}
       </div>
     </div>`;
   document.getElementById("back").onclick = () => go("shop");
@@ -586,7 +675,6 @@ function viewSell() {
     const err = document.getElementById("sellError");
     const fail = m => { err.textContent = m; err.hidden = false; };
     err.hidden = true;
-    if (v("s-web")) return;
     const price = parseFloat(v("s-price").replace(",", "."));
     const phone = v("s-phone").replace(/\D/g, "").replace(/^351/, "");
     const review = v("s-review");
@@ -597,31 +685,33 @@ function viewSell() {
     if (v("s-seller").length < 2) return fail("Introduza o seu nome.");
     if (!/^9[1236]\d{7}$/.test(phone)) return fail("Introduza o seu número MB WAY: 9 dígitos, a começar por 91, 92, 93 ou 96.");
     if (!document.getElementById("s-consent").checked) return fail("Marque a caixa para aceitar mostrar o seu nome e número.");
+    if (!user) return viewLogin();
     const btn = document.getElementById("sellSubmit");
     btn.disabled = true;
+    const uploaded = [];
     try {
-      const names = [];
       for (let i = 0; i < files.length; i++) {
         btn.textContent = `A enviar foto ${i + 1} de ${files.length}…`;
         const blob = await shrink(files[i]);
-        const name = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + i + "-" + Math.random().toString(16).slice(2)) + ".jpg";
-        await api("/storage/v1/object/photos/" + name, { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: blob });
-        names.push(name);
+        const path = `${user.id}/${(crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + i + "-" + Math.random().toString(16).slice(2))}.jpg`;
+        const { error } = await sb.storage.from("photos").upload(path, blob, { contentType: "image/jpeg" });
+        if (error) throw error;
+        uploaded.push(path);
       }
       btn.textContent = "A publicar…";
-      const res = await api("/rest/v1/rpc/create_listing", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
-          p_shape: document.getElementById("s-shape").value, p_weight: v("s-weight"), p_notes: v("s-notes"),
-          p_review: review, p_photos: names, p_seller_name: v("s-seller"), p_seller_phone: phone })
-      });
-      sellResult = { id: res.id, code: res.manage_code, name: v("s-name") };
-      myListings.push(sellResult); put("bandeja-my-listings", myListings);
+      const { data: newId, error } = await sb.rpc("create_listing", {
+        p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
+        p_shape: document.getElementById("s-shape").value, p_weight: v("s-weight"), p_notes: v("s-notes"),
+        p_review: review, p_photos: uploaded, p_seller_name: v("s-seller"), p_seller_phone: phone });
+      if (error) throw error;
+      put("bandeja-last-phone", phone);
+      sellResult = { id: newId, name: v("s-name") };
       viewSell(); window.scrollTo(0, 0);
       loadListings();
     } catch (ex) {
+      if (uploaded.length) sb.storage.from("photos").remove(uploaded).catch(() => {});
       btn.disabled = false; btn.textContent = "Anunciar a minha raquete";
-      fail("Não foi possível anunciar a raquete (" + ex.message + "). Verifique a ligação e tente de novo.");
+      fail("Não foi possível anunciar a raquete (" + (ex.message || "erro") + "). Verifique a ligação e tente de novo.");
     }
   };
 }
@@ -788,6 +878,8 @@ function render(scroll = true) {
   else if (h === "basket") viewBasket();
   else if (h === "order") viewOrder();
   else if (h === "sell") viewSell();
+  else if (h === "login") viewLogin();
+  else if (h === "account") viewAccount();
   else viewShop();
 }
 window.addEventListener("hashchange", () => render());
@@ -795,6 +887,25 @@ document.getElementById("basketBtn").onclick = () => go("basket");
 document.getElementById("sellBtn").onclick = () => { sellResult = null; go("sell"); };
 document.getElementById("footContact").textContent = "MB WAY da loja: " + SHOP.mbwayNumber;
 document.getElementById("count").textContent = basket.length;
+function updateAccountBtn() {
+  const b = document.getElementById("accountBtn");
+  b.hidden = !sb;
+  b.textContent = user ? "A minha conta" : "Entrar";
+}
+document.getElementById("accountBtn").onclick = () => go(user ? "account" : "login");
+updateAccountBtn();
+if (sb) {
+  sb.auth.onAuthStateChange((event, session) => {
+    user = session ? session.user : null;
+    updateAccountBtn();
+    if (event === "SIGNED_IN") {
+      let next = null;
+      try { next = sessionStorage.getItem("bandeja-after-login"); sessionStorage.removeItem("bandeja-after-login"); } catch (e) {}
+      if (next) { setTimeout(() => go(next), 0); return; }
+    }
+    if (event !== "TOKEN_REFRESHED") setTimeout(() => render(false), 0);
+  });
+}
 render();
 loadListings();
 </script>

@@ -311,13 +311,6 @@ const RACKETS = [];   // add the shop's own rackets here (see README)
 
 const ONLINE = !!(SUPABASE.url && SUPABASE.key);
 const CONDITIONS = ["New", "Like new", "Very good", "Good", "Fair"];
-const CONDITION_INFO = {
-  "New": "Nunca usada, na embalagem original.",
-  "Like new": "Usada uma ou duas vezes, sem marcas visíveis.",
-  "Very good": "Pouco uso, pequenas marcas estéticas.",
-  "Good": "Uso regular, desgaste normal no aro e na face.",
-  "Fair": "Muito uso, marcas visíveis, joga bem."
-};
 const COND_PT = { "New": "Nova", "Like new": "Como nova", "Very good": "Muito bom estado", "Good": "Bom estado", "Fair": "Estado razoável" };
 const SHAPE_PT = { round: "Redonda", teardrop: "Lágrima", diamond: "Diamante" };
 const LOCATIONS = [
@@ -495,7 +488,7 @@ const app = document.getElementById("app");
 let filter = "all";
 let place = "";
 
-const chip = c => `<span class="chip ${c === "New" ? "new" : "used"}" title="${esc(CONDITION_INFO[c])}">${esc(c === "New" ? "Nova" : "Usada · " + COND_PT[c])}</span>`;
+const chip = c => `<span class="chip ${c === "New" ? "new" : "used"}">${esc(c === "New" ? "Nova" : "Usada · " + COND_PT[c])}</span>`;
 const ytIcon = `<svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect width="16" height="12" rx="3" fill="#ff0033"/><path d="M6.4 3.4v5.2L10.8 6Z" fill="#fff"/></svg>`;
 
 function viewShop() {
@@ -533,7 +526,7 @@ function viewRacket(r) {
   const g = galleryItems(r);
   const mine = isMine(r);
   const specs = [
-    ["Estado", `${COND_PT[r.condition]}. ${CONDITION_INFO[r.condition]}`],
+    ["Estado", COND_PT[r.condition]],
     ["Formato", r.shapeKnown === false ? "" : shapePT(r.shape)],
     ["Peso", r.weight], ["Núcleo", r.core], ["Face", r.face], ["Ano", r.year]
   ].filter(([, v]) => v);
@@ -966,8 +959,7 @@ function viewSell() {
         <div class="field"><label for="s-name">Nome da raquete</label><input id="s-name" maxlength="80" placeholder="Marca, modelo e ano" required></div>
         <div class="two">
           <div class="field"><label for="s-cond">Estado</label>
-            <select id="s-cond">${CONDITIONS.map(c => `<option value="${c}">${COND_PT[c]}</option>`).join("")}</select>
-            <span class="hint" id="s-cond-hint">${CONDITION_INFO.New}</span></div>
+            <select id="s-cond">${CONDITIONS.map(c => `<option value="${c}">${COND_PT[c]}</option>`).join("")}</select></div>
           <div class="field"><label for="s-price">Preço (€)</label><input id="s-price" inputmode="decimal" placeholder="120" required></div>
         </div>
         <div class="two">
@@ -1011,7 +1003,6 @@ function viewSell() {
   ["s-weight", "s-weight2"].forEach(id => { const wt = document.getElementById(id);
     wt.oninput = () => { const d = wt.value.replace(/\D/g, ""); if (d !== wt.value) wt.value = d; }; });
   const cond = document.getElementById("s-cond");
-  cond.onchange = () => document.getElementById("s-cond-hint").textContent = CONDITION_INFO[cond.value];
   let files = [];
   const photos = document.getElementById("s-photos");
   photos.onchange = () => {

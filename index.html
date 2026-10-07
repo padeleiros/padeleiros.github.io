@@ -176,8 +176,9 @@ form .radio input, form .check input { width: auto; }
 form select { border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; }
 .previews { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .previews img { aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; width: 100%; }
-.check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
-.check input { margin-top: 4px; accent-color: var(--ball); }
+.check { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--bg); cursor: pointer; }
+.check:has(input:checked) { border-color: var(--ball); }
+form .check input { flex: none; width: 22px; height: 22px; margin: 0; accent-color: var(--ball); cursor: pointer; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .code { font: 500 22px var(--font-mono); letter-spacing: .08em; background: var(--bg); border: 1.5px dashed var(--line); border-radius: 10px; padding: 10px 14px; display: inline-block; }
 .mine { display: grid; gap: 8px; }

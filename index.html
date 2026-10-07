@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bandeja Padel Rackets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a court-blue top bar, a calm grid of racket cards, one view at a time (shop / racket / basket / checkout) */
+:root {
+  --bg: #f3f6fa;
+  --surface: #ffffff;
+  --fg: #12233b;
+  --muted: #5a6a80;
+  --line: #dbe3ee;
+  --court: #1d4f91;
+  --court-ink: #ffffff;
+  --ball: #d9f24a;
+  --ball-ink: #1b2a06;
+  --good: #1f7a4d;
+  --warn: #9a6a00;
+  --chip-new: #e2f0e8;
+  --chip-used: #f6eedb;
+  --art-bg: #e7edf5;
+  --font-display: "Saira Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1726; --surface: #14223a; --fg: #e8eef7; --muted: #9aabc3; --line: #253754;
+  --court: #2a64b3; --court-ink: #ffffff; --ball: #d9f24a; --ball-ink: #1b2a06;
+  --good: #5cc890; --warn: #e2b44a; --chip-new: #173a2b; --chip-used: #3a3019; --art-bg: #1a2c48;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0d1726; --surface: #14223a; --fg: #e8eef7; --muted: #9aabc3; --line: #253754;
+  --court: #2a64b3; --court-ink: #ffffff; --ball: #d9f24a; --ball-ink: #1b2a06;
+  --good: #5cc890; --warn: #e2b44a; --chip-new: #173a2b; --chip-used: #3a3019; --art-bg: #1a2c48;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--font-body); }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--court); }
+:root[data-theme="dark"] a { color: #8fb8ee; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) a { color: #8fb8ee; } }
+:focus-visible { outline: 3px solid var(--ball); outline-offset: 2px; }
+
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--court); color: var(--court-ink); }
+.topbar-inner { max-width: 1120px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--court-ink); }
+.brand svg { flex: none; }
+.brand-name { font: 800 26px/1 var(--font-display); letter-spacing: .02em; text-transform: uppercase; }
+.basket-btn { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1.5px solid rgba(255,255,255,.55); color: var(--court-ink); border-radius: 999px; padding: 7px 14px; cursor: pointer; font-weight: 600; }
+.basket-btn:hover { border-color: #fff; }
+.count { background: var(--ball); color: var(--ball-ink); border-radius: 999px; min-width: 22px; height: 22px; padding: 0 6px; display: inline-grid; place-items: center; font: 600 12px var(--font-mono); }
+
+main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
+
+.intro { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.intro h1 { font: 800 clamp(34px, 6vw, 52px)/0.95 var(--font-display); text-transform: uppercase; margin: 0 0 6px; text-wrap: balance; }
+.intro p { margin: 0; color: var(--muted); max-width: 52ch; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+.filter[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.card-link { display: flex; flex-direction: column; color: inherit; text-decoration: none; flex: 1; }
+.card-link:hover .art { background: color-mix(in srgb, var(--art-bg) 80%, var(--court) 8%); }
+.art { background: var(--art-bg); aspect-ratio: 4 / 5; max-width: 100%; display: grid; place-items: center; transition: background .2s; }
+.art svg { width: 62%; height: auto; }
+.card-body { padding: 14px 16px 6px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.card-name { font-weight: 700; font-size: 16px; line-height: 1.3; margin: 0; }
+.meta { color: var(--muted); font-size: 13px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 6px; }
+.price { font: 500 18px var(--font-mono); font-variant-numeric: tabular-nums; }
+.chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.chip.new { background: var(--chip-new); color: var(--good); }
+.chip.used { background: var(--chip-used); color: var(--warn); }
+.card-foot { padding: 8px 16px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.yt { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; text-decoration: none; }
+.yt:hover { text-decoration: underline; }
+.sold-tag { font-size: 12px; color: var(--muted); }
+
+.btn { border: 0; border-radius: 10px; padding: 12px 18px; font-weight: 700; cursor: pointer; }
+.btn-primary { background: var(--ball); color: var(--ball-ink); }
+.btn-primary:hover { filter: brightness(.96); }
+.btn-dark { background: var(--fg); color: var(--bg); }
+.btn-ghost { background: transparent; border: 1.5px solid var(--line); }
+.btn[disabled] { opacity: .55; cursor: default; }
+.back { background: none; border: 0; padding: 0; color: var(--muted); cursor: pointer; font-weight: 600; margin-bottom: 16px; }
+.back:hover { color: var(--fg); }
+
+.detail { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 760px) { .detail { grid-template-columns: 1fr; gap: 20px; } }
+.gallery-main { background: var(--art-bg); border-radius: 16px; aspect-ratio: 1 / 1; max-width: 100%; display: grid; place-items: center; }
+.gallery-main svg { width: 58%; height: auto; max-height: 90%; }
+.thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+.thumb { background: var(--art-bg); border: 2px solid transparent; border-radius: 10px; aspect-ratio: 1 / 1; max-width: 100%; display: grid; place-items: center; cursor: pointer; padding: 6px; }
+.thumb svg { width: 70%; height: auto; max-height: 90%; }
+.thumb[aria-current="true"] { border-color: var(--court); }
+.thumb-label { font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; }
+.detail h1 { font: 800 clamp(32px, 5vw, 44px)/1 var(--font-display); text-transform: uppercase; margin: 6px 0 10px; text-wrap: balance; }
+.detail .price { font-size: 28px; }
+.specs { display: grid; grid-template-columns: auto 1fr; gap: 8px 18px; margin: 20px 0; padding: 16px 0; border-block: 1px solid var(--line); }
+.specs dt { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; padding-top: 2px; }
+.specs dd { margin: 0; font-weight: 500; }
+.notes { color: var(--fg); max-width: 60ch; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.page-title { font: 800 clamp(30px, 5vw, 42px)/1 var(--font-display); text-transform: uppercase; margin: 0 0 18px; }
+.basket-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .basket-layout { grid-template-columns: 1fr; } }
+.line { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.line:last-child { border-bottom: 0; }
+.line .mini { background: var(--art-bg); border-radius: 8px; aspect-ratio: 1/1; display: grid; place-items: center; }
+.line .mini svg { width: 60%; height: auto; }
+.line-name { font-weight: 700; }
+.remove { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 13px; padding: 0; text-decoration: underline; }
+.sumrow { display: flex; justify-content: space-between; padding: 6px 0; font-variant-numeric: tabular-nums; }
+.sumrow.total { font-weight: 700; font-size: 18px; border-top: 1px solid var(--line); margin-top: 6px; padding-top: 12px; }
+.empty { text-align: center; padding: 40px 16px; color: var(--muted); }
+
+form .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+form label { font-weight: 600; font-size: 14px; }
+form input, form textarea { border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+form input:focus, form textarea:focus { border-color: var(--court); outline: none; }
+.hint { font-size: 13px; color: var(--muted); }
+.error { color: #c0392b; font-size: 13px; }
+:root[data-theme="dark"] .error { color: #ff8a7a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .error { color: #ff8a7a; } }
+.radio-group { display: grid; gap: 8px; }
+.radio { display: flex; gap: 10px; align-items: center; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+.radio input { accent-color: var(--court); }
+
+.mbway { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); margin-bottom: 16px; }
+.mbway-badge { font: 800 15px var(--font-display); letter-spacing: .04em; background: #d6002a; color: #fff; border-radius: 6px; padding: 3px 8px; }
+
+.pay-box { background: var(--court); color: var(--court-ink); border-radius: 14px; padding: 22px; margin: 16px 0; }
+.pay-box .big { font: 500 clamp(26px, 6vw, 36px) var(--font-mono); font-variant-numeric: tabular-nums; }
+.pay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 14px; }
+.pay-grid .label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; opacity: .8; }
+.pay-grid .val { font: 500 20px var(--font-mono); word-break: break-word; }
+.copy { background: rgba(255,255,255,.16); border: 0; color: #fff; border-radius: 6px; padding: 3px 9px; font-size: 12px; cursor: pointer; margin-top: 4px; }
+.steps { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
+.notice { font-size: 13px; color: var(--muted); text-align: center; padding: 20px 16px 0; }
+footer { border-top: 1px solid var(--line); max-width: 1120px; margin: 0 auto; padding: 18px 16px 30px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 600; z-index: 20; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<style>body{margin:0} img{max-width:100%} [hidden]{display:none!important}</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#shop" aria-label="Bandeja, back to all rackets">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="#d9f24a"/><path d="M4 11c5 3 17 3 22 0M4 19c5-3 17-3 22 0" stroke="#1b2a06" stroke-width="1.6" fill="none"/></svg>
+      <span class="brand-name">Bandeja</span>
+    </a>
+    <button class="basket-btn" id="basketBtn" type="button">Basket <span class="count" id="count">0</span></button>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer>
+  <span>Padel rackets, new and used. Payment by MB WAY.</span>
+  <span id="footContact"></span>
+</footer>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ============================================================
+   SHOP SETTINGS — edit these
+   ============================================================ */
+const SHOP = {
+  name: "Bandeja",
+  mbwayNumber: "912 345 678",        // your MB WAY phone number (shown to buyers)
+  whatsapp: "351912345678",          // same number with country code, digits only (for order messages)
+  shipping: [
+    { id: "pickup", label: "Pick up in person", price: 0 },
+    { id: "ctt",    label: "Shipping in Portugal (CTT)", price: 6 }
+  ]
+};
+
+/* Your rackets. condition: "New" | "Like new" | "Very good" | "Good" | "Fair"
+   shape: "round" | "teardrop" | "diamond". colors draw the placeholder pictures
+   until you add real photos. review: link to a YouTube review. */
+const RACKETS = [
+  { id: "vertex04", name: "Bullpadel Vertex 04 2024", condition: "Very good", price: 145,
+    shape: "diamond", weight: "365 g", core: "MultiEVA (hard)", face: "Carbon 12K", year: 2024,
+    notes: "Played about 3 months. Small scuff on the frame guard, face is clean. Comes with original cover.",
+    review: "https://www.youtube.com/results?search_query=Bullpadel+Vertex+04+2024+review",
+    colors: ["#111827", "#f97316", "#facc15"] },
+  { id: "viper24", name: "Babolat Technical Viper 2024", condition: "New", price: 249,
+    shape: "diamond", weight: "365 g", core: "Black EVA (hard)", face: "Carbon 12K", year: 2024,
+    notes: "Brand new, still in plastic. Full manufacturer warranty.",
+    review: "https://www.youtube.com/results?search_query=Babolat+Technical+Viper+2024+review",
+    colors: ["#0b0b0b", "#e11d48", "#f5f5f5"] },
+  { id: "at10", name: "Nox AT10 Genius 18K 2024", condition: "Like new", price: 189,
+    shape: "teardrop", weight: "370 g", core: "MLD Black EVA", face: "Carbon 18K", year: 2024,
+    notes: "Used twice, then I switched to a round racket. No marks.",
+    review: "https://www.youtube.com/results?search_query=Nox+AT10+Genius+18K+2024+review",
+    colors: ["#1e293b", "#eab308", "#ffffff"] },
+  { id: "extreme", name: "Head Extreme Pro 2024", condition: "Good", price: 95,
+    shape: "teardrop", weight: "360 g", core: "Power Foam", face: "Carbon", year: 2024,
+    notes: "One season of club play. Normal wear on the edges, grip recently replaced.",
+    review: "https://www.youtube.com/results?search_query=Head+Extreme+Pro+2024+padel+review",
+    colors: ["#0f172a", "#22d3ee", "#a3e635"] },
+  { id: "ml10", name: "Nox ML10 Pro Cup", condition: "Good", price: 79,
+    shape: "round", weight: "360 g", core: "HR3 Black EVA (soft)", face: "Fibreglass", year: 2023,
+    notes: "A forgiving control racket, good for beginners. Light marks on the face.",
+    review: "https://www.youtube.com/results?search_query=Nox+ML10+Pro+Cup+review",
+    colors: ["#111111", "#dc2626", "#fbbf24"] },
+  { id: "metalbone", name: "Adidas Metalbone 3.3", condition: "Fair", price: 110,
+    shape: "diamond", weight: "370 g", core: "EVA High Memory", face: "Carbon Aluminized 16K", year: 2024,
+    notes: "Played hard for a season. Visible chips on the frame top, structurally fine. Priced for that.",
+    review: "https://www.youtube.com/results?search_query=Adidas+Metalbone+3.3+review",
+    colors: ["#1f2937", "#3b82f6", "#e5e7eb"] }
+];
+/* ============================================================ */
+
+const CONDITION_INFO = {
+  "New": "Unused, in original packaging.",
+  "Like new": "Used once or twice, no visible marks.",
+  "Very good": "Light use, minor cosmetic marks.",
+  "Good": "Regular use, normal wear on frame and face.",
+  "Fair": "Heavy use, visible marks, plays fine."
+};
+
+const euro = n => "€" + n.toFixed(2).replace(".", ",");
+const byId = id => RACKETS.find(r => r.id === id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+/* ---------- placeholder racket drawings ---------- */
+const HEADS = {
+  round:    "M100,22 C152,22 180,60 180,112 C180,166 146,202 100,204 C54,202 20,166 20,112 C20,60 48,22 100,22Z",
+  teardrop: "M100,16 C156,16 182,52 182,98 C182,150 142,194 100,206 C58,194 18,150 18,98 C18,52 44,16 100,16Z",
+  diamond:  "M100,12 C142,12 178,42 182,82 C186,126 142,184 100,208 C58,184 14,126 18,82 C22,42 58,12 100,12Z"
+};
+let svgSeq = 0;
+function racketSVG(r, view = "front") {
+  const [frame, accent, light] = r.colors;
+  const head = HEADS[r.shape];
+  const uid = "c" + (svgSeq++);
+  if (view === "side") {
+    return `<svg viewBox="0 0 200 320" role="img" aria-label="${esc(r.name)}, side view">
+      <path d="M93,14 C99,12 101,12 107,14 L109,200 L104,250 L96,250 L91,200Z" fill="${frame}"/>
+      <rect x="95.5" y="14" width="9" height="186" fill="${accent}" opacity=".85"/>
+      <rect x="91" y="248" width="18" height="62" rx="5" fill="${frame}"/>
+      ${[0,1,2,3,4,5].map(i => `<path d="M91,${254+i*9} L109,${259+i*9}" stroke="${light}" stroke-opacity=".35" stroke-width="2"/>`).join("")}
+    </svg>`;
+  }
+  let holes = "";
+  for (let y = 46; y < 196; y += 15) for (let x = 34; x < 170; x += 15) {
+    const ox = ((y - 46) / 15) % 2 ? 7 : 0;
+    holes += `<circle cx="${x + ox}" cy="${y}" r="3.6"/>`;
+  }
+  const faceArt = view === "back"
+    ? `<path d="M10,150 L100,90 L190,150 L190,175 L100,115 L10,175Z" fill="${accent}"/>
+       <path d="M10,190 L100,130 L190,190 L190,202 L100,142 L10,202Z" fill="${light}" opacity=".9"/>`
+    : `<path d="M-10,80 L210,20 L210,62 L-10,122Z" fill="${accent}"/>
+       <path d="M-10,128 L210,68 L210,78 L-10,138Z" fill="${light}" opacity=".9"/>
+       <circle cx="100" cy="160" r="16" fill="none" stroke="${light}" stroke-width="3" opacity=".8"/>`;
+  const vb = view === "detail" ? "34 20 132 132" : "0 0 200 320";
+  return `<svg viewBox="${vb}" role="img" aria-label="${esc(r.name)}, ${view} view">
+    <defs><clipPath id="${uid}"><path d="${head}"/></clipPath></defs>
+    <path d="M80,190 L94,250 L106,250 L120,190 L112,190 L100,226 L88,190Z" fill="${frame}"/>
+    <g clip-path="url(#${uid})">
+      <rect width="200" height="220" fill="${frame}"/>
+      ${faceArt}
+      <g fill="${frame}" opacity=".9">${holes}</g>
+    </g>
+    <path d="${head}" fill="none" stroke="${frame}" stroke-width="9"/>
+    <path d="${head}" fill="none" stroke="${accent}" stroke-width="2" opacity=".7"/>
+    <rect x="88" y="248" width="24" height="62" rx="6" fill="${frame}"/>
+    ${[0,1,2,3,4,5].map(i => `<path d="M88,${254+i*9} L112,${259+i*9}" stroke="${light}" stroke-opacity=".35" stroke-width="2"/>`).join("")}
+  </svg>`;
+}
+const VIEWS = [["front","Front"],["back","Back"],["side","Side"],["detail","Close-up"]];
+
+/* ---------- basket (kept in this browser only) ---------- */
+let basket = [];
+try { basket = JSON.parse(localStorage.getItem("bandeja-basket") || "[]").filter(byId); } catch (e) { basket = []; }
+function saveBasket() {
+  try { localStorage.setItem("bandeja-basket", JSON.stringify(basket)); } catch (e) {}
+  document.getElementById("count").textContent = basket.length;
+}
+function addToBasket(id) { if (!basket.includes(id)) basket.push(id); saveBasket(); toast("Added to basket"); }
+function removeFromBasket(id) { basket = basket.filter(x => x !== id); saveBasket(); }
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 1800);
+}
+
+/* ---------- views ---------- */
+const app = document.getElementById("app");
+let filter = "all";
+let checkout = { delivery: "pickup", name: "", phone: "", address: "", note: "" };
+let order = null;
+
+const chip = c => `<span class="chip ${c === "New" ? "new" : "used"}" title="${esc(CONDITION_INFO[c])}">${esc(c === "New" ? "New" : "Used · " + c)}</span>`;
+const ytIcon = `<svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect width="16" height="12" rx="3" fill="#ff0033"/><path d="M6.4 3.4v5.2L10.8 6Z" fill="#fff"/></svg>`;
+
+function viewShop() {
+  const list = RACKETS.filter(r => filter === "all" || (filter === "new" ? r.condition === "New" : r.condition !== "New"));
+  app.innerHTML = `
+    <section class="intro">
+      <div>
+        <h1>Padel rackets</h1>
+        <p>New and second-hand rackets, each checked and graded. Tap a racket for more photos.</p>
+      </div>
+      <div class="filters" role="group" aria-label="Filter by condition">
+        ${[["all","All"],["new","New"],["used","Used"]].map(([k,l]) =>
+          `<button class="filter" type="button" data-filter="${k}" aria-pressed="${filter === k}">${l}</button>`).join("")}
+      </div>
+    </section>
+    <section class="grid">
+      ${list.map(r => `
+        <article class="card">
+          <a class="card-link" href="#r-${r.id}">
+            <div class="art">${racketSVG(r)}</div>
+            <div class="card-body">
+              <h2 class="card-name">${esc(r.name)}</h2>
+              <div class="meta">${esc(r.shape[0].toUpperCase() + r.shape.slice(1))} · ${esc(r.weight)}</div>
+              <div class="row"><span class="price">${euro(r.price)}</span>${chip(r.condition)}</div>
+            </div>
+          </a>
+          <div class="card-foot">
+            <a class="yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Watch review</a>
+            ${basket.includes(r.id) ? `<span class="sold-tag">In basket</span>` : ""}
+          </div>
+        </article>`).join("")}
+    </section>
+    <p class="notice">Sample stock shown. Replace it with your own rackets in the shop settings.</p>`;
+  app.querySelectorAll("[data-filter]").forEach(b => b.onclick = () => { filter = b.dataset.filter; viewShop(); });
+}
+
+function viewRacket(r) {
+  const inBasket = basket.includes(r.id);
+  app.innerHTML = `
+    <button class="back" type="button" id="back">← All rackets</button>
+    <section class="detail">
+      <div>
+        <div class="gallery-main" id="mainPic">${racketSVG(r, "front")}</div>
+        <div class="thumbs">
+          ${VIEWS.map(([v,l], i) => `<div><button class="thumb" type="button" data-view="${v}" aria-current="${i===0}" aria-label="Show ${l} photo">${racketSVG(r, v)}</button><div class="thumb-label">${l}</div></div>`).join("")}
+        </div>
+      </div>
+      <div>
+        ${chip(r.condition)}
+        <h1>${esc(r.name)}</h1>
+        <div class="price">${euro(r.price)}</div>
+        <dl class="specs">
+          <dt>Condition</dt><dd>${esc(r.condition)}. ${esc(CONDITION_INFO[r.condition])}</dd>
+          <dt>Shape</dt><dd>${esc(r.shape[0].toUpperCase() + r.shape.slice(1))}</dd>
+          <dt>Weight</dt><dd>${esc(r.weight)}</dd>
+          <dt>Core</dt><dd>${esc(r.core)}</dd>
+          <dt>Face</dt><dd>${esc(r.face)}</dd>
+          <dt>Year</dt><dd>${esc(r.year)}</dd>
+        </dl>
+        <p class="notes">${esc(r.notes)}</p>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "In your basket" : "Add to basket"}</button>
+          ${inBasket ? `<button class="btn btn-dark" type="button" id="goBasket">Go to basket</button>` : ""}
+          <a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Watch YouTube review</a>
+        </div>
+      </div>
+    </section>`;
+  document.getElementById("back").onclick = () => go("shop");
+  const add = document.getElementById("add");
+  if (!inBasket) add.onclick = () => { addToBasket(r.id); viewRacket(r); };
+  const gb = document.getElementById("goBasket"); if (gb) gb.onclick = () => go("basket");
+  app.querySelectorAll(".thumb").forEach(t => t.onclick = () => {
+    document.getElementById("mainPic").innerHTML = racketSVG(r, t.dataset.view);
+    app.querySelectorAll(".thumb").forEach(x => x.setAttribute("aria-current", x === t));
+  });
+}
+
+function totals() {
+  const sub = basket.reduce((s, id) => s + byId(id).price, 0);
+  const ship = (SHOP.shipping.find(s => s.id === checkout.delivery) || SHOP.shipping[0]).price;
+  return { sub, ship, total: sub + ship };
+}
+
+function viewBasket() {
+  if (!basket.length) {
+    app.innerHTML = `<h1 class="page-title">Basket</h1>
+      <div class="panel empty"><p>Your basket is empty.</p><button class="btn btn-primary" type="button" id="browse">Browse rackets</button></div>`;
+    document.getElementById("browse").onclick = () => go("shop");
+    return;
+  }
+  const t = totals();
+  app.innerHTML = `
+    <button class="back" type="button" id="back">← Keep shopping</button>
+    <h1 class="page-title">Basket</h1>
+    <div class="basket-layout">
+      <div class="panel">
+        ${basket.map(id => { const r = byId(id); return `
+          <div class="line">
+            <a class="mini" href="#r-${r.id}" aria-label="${esc(r.name)}">${racketSVG(r)}</a>
+            <div style="min-width:0">
+              <div class="line-name">${esc(r.name)}</div>
+              <div class="meta">${esc(r.condition)} · ${esc(r.weight)}</div>
+              <button class="remove" type="button" data-remove="${r.id}">Remove</button>
+            </div>
+            <div class="price">${euro(r.price)}</div>
+          </div>`; }).join("")}
+      </div>
+      <div class="panel">
+        <form id="checkoutForm" novalidate>
+          <div class="field">
+            <span id="dlabel" style="font-weight:600;font-size:14px">Delivery</span>
+            <div class="radio-group" role="radiogroup" aria-labelledby="dlabel">
+              ${SHOP.shipping.map(s => `<label class="radio"><input type="radio" name="delivery" id="del-${s.id}" value="${s.id}" ${checkout.delivery === s.id ? "checked" : ""}> <span style="flex:1">${esc(s.label)}</span> <span class="meta">${s.price ? euro(s.price) : "Free"}</span></label>`).join("")}
+            </div>
+          </div>
+          <div class="field"><label for="cname">Your name</label><input id="cname" autocomplete="name" value="${esc(checkout.name)}" required></div>
+          <div class="field"><label for="cphone">MB WAY phone number</label><input id="cphone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(checkout.phone)}" required><span class="hint">The number linked to your MB WAY app.</span></div>
+          <div class="field" id="addrField" ${checkout.delivery === "pickup" ? "hidden" : ""}><label for="caddr">Shipping address</label><textarea id="caddr" rows="3" autocomplete="street-address">${esc(checkout.address)}</textarea></div>
+          <div class="sumrow"><span>Rackets</span><span>${euro(t.sub)}</span></div>
+          <div class="sumrow"><span>Delivery</span><span>${t.ship ? euro(t.ship) : "Free"}</span></div>
+          <div class="sumrow total"><span>Total</span><span class="price">${euro(t.total)}</span></div>
+          <div class="mbway" style="margin-top:14px"><span class="mbway-badge">MB WAY</span><span class="meta">Payment by MB WAY only</span></div>
+          <p class="error" id="formError" hidden></p>
+          <button class="btn btn-primary" type="submit" style="width:100%">Place order and pay with MB WAY</button>
+        </form>
+      </div>
+    </div>`;
+  document.getElementById("back").onclick = () => go("shop");
+  app.querySelectorAll("[data-remove]").forEach(b => b.onclick = () => { removeFromBasket(b.dataset.remove); viewBasket(); });
+  const form = document.getElementById("checkoutForm");
+  form.querySelectorAll('input[name="delivery"]').forEach(i => i.onchange = () => { readForm(); viewBasket(); });
+  form.onsubmit = e => {
+    e.preventDefault(); readForm();
+    const err = document.getElementById("formError");
+    const digits = checkout.phone.replace(/\D/g, "").replace(/^351/, "");
+    let msg = "";
+    if (!checkout.name.trim()) msg = "Enter your name.";
+    else if (!/^9[1236]\d{7}$/.test(digits)) msg = "Enter a Portuguese mobile number with 9 digits, starting with 91, 92, 93 or 96.";
+    else if (checkout.delivery !== "pickup" && !checkout.address.trim()) msg = "Enter a shipping address, or choose pick up.";
+    if (msg) { err.textContent = msg; err.hidden = false; return; }
+    placeOrder(digits);
+  };
+}
+
+function readForm() {
+  const g = id => document.getElementById(id);
+  const d = document.querySelector('input[name="delivery"]:checked');
+  checkout = { delivery: d ? d.value : "pickup", name: g("cname").value, phone: g("cphone").value,
+               address: g("caddr") ? g("caddr").value : "", note: "" };
+}
+
+function placeOrder(phoneDigits) {
+  const t = totals();
+  const ref = "BJ-" + Math.floor(1000 + Math.random() * 9000);
+  const items = basket.map(byId);
+  const delivery = SHOP.shipping.find(s => s.id === checkout.delivery);
+  const text = [
+    `New order ${ref}`,
+    ...items.map(r => `- ${r.name} (${r.condition}) ${euro(r.price)}`),
+    `Delivery: ${delivery.label}${delivery.price ? " " + euro(delivery.price) : ""}`,
+    `Total: ${euro(t.total)}`,
+    `Name: ${checkout.name.trim()}`,
+    `MB WAY phone: ${phoneDigits}`,
+    checkout.delivery !== "pickup" ? `Address: ${checkout.address.trim()}` : ""
+  ].filter(Boolean).join("\n");
+  order = { ref, total: t.total, text, items };
+  basket = []; saveBasket();
+  go("order");
+}
+
+function viewOrder() {
+  if (!order) return go("shop");
+  const wa = `https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(order.text)}`;
+  app.innerHTML = `
+    <h1 class="page-title">Order ${esc(order.ref)}</h1>
+    <div class="basket-layout">
+      <div>
+        <div class="pay-box">
+          <div class="mbway-badge" style="display:inline-block;margin-bottom:10px">MB WAY</div>
+          <div>Send this amount with MB WAY:</div>
+          <div class="big">${euro(order.total)}</div>
+          <div class="pay-grid">
+            <div><div class="label">To number</div><div class="val" id="payNum">${esc(SHOP.mbwayNumber)}</div><button class="copy" type="button" data-copy="${esc(SHOP.mbwayNumber.replace(/\s/g,""))}">Copy number</button></div>
+            <div><div class="label">Message / reference</div><div class="val">${esc(order.ref)}</div><button class="copy" type="button" data-copy="${esc(order.ref)}">Copy reference</button></div>
+          </div>
+        </div>
+        <div class="panel">
+          <ol class="steps">
+            <li>Open the MB WAY app and choose <b>Send money</b>.</li>
+            <li>Send <b>${euro(order.total)}</b> to <b>${esc(SHOP.mbwayNumber)}</b> and write <b>${esc(order.ref)}</b> in the message.</li>
+            <li>Send us your order details below so we can match your payment.</li>
+            <li>We confirm by message once the payment arrives, then arrange pick-up or shipping.</li>
+          </ol>
+          <div class="actions">
+            <a class="btn btn-primary" href="${wa}" target="_blank" rel="noopener">Send order on WhatsApp</a>
+            <button class="btn btn-ghost" type="button" id="copyOrder">Copy order details</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div style="font-weight:700;margin-bottom:8px">Your order</div>
+        <pre style="white-space:pre-wrap;margin:0;font:13px/1.6 var(--font-mono)" id="orderText">${esc(order.text)}</pre>
+      </div>
+    </div>`;
+  const copy = (txt, label) => {
+    const done = () => toast(label + " copied");
+    try { navigator.clipboard.writeText(txt).then(done, () => toast("Select the text to copy it")); }
+    catch (e) { toast("Select the text to copy it"); }
+  };
+  app.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copy(b.dataset.copy, b.textContent.replace("Copy ", "").replace(/^./, c => c.toUpperCase())));
+  document.getElementById("copyOrder").onclick = () => copy(order.text, "Order details");
+}
+
+/* ---------- routing ---------- */
+function go(where) { location.hash = where; render(); }
+function render() {
+  const h = location.hash.slice(1);
+  window.scrollTo(0, 0);
+  if (h.startsWith("r-") && byId(h.slice(2))) viewRacket(byId(h.slice(2)));
+  else if (h === "basket") viewBasket();
+  else if (h === "order") viewOrder();
+  else viewShop();
+}
+window.addEventListener("hashchange", render);
+document.getElementById("basketBtn").onclick = () => go("basket");
+document.getElementById("footContact").textContent = "MB WAY: " + SHOP.mbwayNumber;
+saveBasket();
+render();
+</script>
+</body>
+</html>

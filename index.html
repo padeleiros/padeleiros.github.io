@@ -175,7 +175,14 @@ form input, form select, form textarea { width: 100%; min-width: 0; }
 form .radio input, form .check input { width: auto; }
 form select { border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; }
 .previews { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.previews img { aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; width: 100%; }
+.previews { margin-bottom: 4px; }
+.previews:empty { display: none; }
+.pic { position: relative; }
+.pic img { aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; width: 100%; display: block; }
+.pic-x { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0,0,0,.7); color: #fff; font-size: 18px; line-height: 1; cursor: pointer; }
+.pic-x:hover { background: var(--ball); }
+.pic-tag { position: absolute; left: 4px; bottom: 4px; background: var(--ball); color: var(--ball-ink); font-size: 11px; font-weight: 700; border-radius: 4px; padding: 1px 6px; }
+.add-photos { align-self: flex-start; cursor: pointer; }
 .check { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--bg); cursor: pointer; }
 .check:has(input:checked) { border-color: var(--ball); }
 form .check input { flex: none; width: 22px; height: 22px; margin: 0; accent-color: var(--ball); cursor: pointer; }
@@ -558,7 +565,7 @@ function viewRacket(r) {
         <div class="owner-box">
           <b>Este anúncio é seu.</b>
           <p class="hint">Quando vender a raquete, marque-a como vendida em <a href="#account">A minha conta</a> para o comprador a poder avaliar. Se desistir de vender, remova o anúncio.</p>
-          <div class="inline-form">${removeButton(r)}</div>
+          <div class="inline-form"><a class="btn btn-dark" href="#edit-${esc(r.id)}" style="text-decoration:none">Editar anúncio</a>${removeButton(r)}</div>
         </div>` : ""}
       </div>
     </section>`;
@@ -822,7 +829,7 @@ function viewAccount() {
         <div class="panel">
           <div class="panel-title">À venda</div>
           ${listingsState === "loading" ? `<p class="status">A carregar…</p>` : active.length ? `<div class="mine">${active.map(r => row(r,
-            `<button class="btn btn-dark" type="button" data-sold="${esc(r.id)}">Marcar como vendida</button>${removeButton(r)}`,
+            `<a class="btn btn-ghost" href="#edit-${esc(r.id)}" style="text-decoration:none">Editar</a><button class="btn btn-dark" type="button" data-sold="${esc(r.id)}">Marcar como vendida</button>${removeButton(r)}`,
             `${euro(r.price)} · ${esc(COND_PT[r.condition])}`) + `<form class="sold-form" id="sf-${esc(r.id)}" hidden>
               <label for="buyer-${esc(r.id)}">Quem comprou? (nome de utilizador)</label>
               <div class="inline-form"><div class="at-input" style="flex:1"><span aria-hidden="true">@</span><input id="buyer-${esc(r.id)}" autocapitalize="none" spellcheck="false" placeholder="joao.silva"></div>
@@ -928,7 +935,11 @@ const reviewForm = r => `
 
 /* ----- selling ----- */
 let sellResult = null;
-function viewSell() {
+const viewSell = () => viewListingForm(null);
+
+/* One form for a new listing and for editing one. `r` is the listing being edited, or null. */
+function viewListingForm(r) {
+  const editing = !!r;
   if (!sb) {
     app.innerHTML = `<h1 class="page-title">Vender raquete</h1>
       <div class="panel"><p>As vendas ainda não estão ativas. O dono da loja tem de adicionar os dados da base de dados nas definições.</p></div>`;
@@ -936,57 +947,80 @@ function viewSell() {
   }
   if (!user) return viewLogin("Para anunciar uma raquete, entre com a sua conta Google. Assim pode gerir e remover os seus anúncios quando quiser.");
   if (!myProfile()) { if (profilesState === "loading") { app.innerHTML = `<p class="status">A carregar…</p>`; return; } try { sessionStorage.setItem("bandeja-after-setup", "sell"); } catch (e) {} return viewSetup(); }
-  if (sellResult) {
-    const r = sellResult;
+  if (editing && (!isMine(r) || r.soldAt)) {
+    app.innerHTML = `<h1 class="page-title">Editar anúncio</h1><div class="panel"><p>${r.soldAt ? "Esta raquete já foi vendida, por isso o anúncio já não pode ser editado." : "Só pode editar os seus próprios anúncios."}</p></div>`;
+    return;
+  }
+  if (!editing && sellResult) {
+    const x = sellResult;
     app.innerHTML = `<h1 class="page-title">A sua raquete está anunciada</h1>
       <div class="panel" style="max-width:640px">
-        <p><b>${esc(r.name)}</b> já está na página inicial.</p>
-        <p class="hint">Quando a vender, remova o anúncio em <b>A minha conta</b>.</p>
+        <p><b>${esc(x.name)}</b> já está na página inicial.</p>
+        <p class="hint">Pode editá-la ou, quando a vender, marcá-la como vendida em <b>A minha conta</b>.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="#r-u${esc(r.id)}" style="text-decoration:none">Ver o seu anúncio</a>
+          <a class="btn btn-primary" href="#r-u${esc(x.id)}" style="text-decoration:none">Ver o seu anúncio</a>
           <button class="btn btn-ghost" type="button" id="another">Anunciar outra raquete</button>
         </div>
       </div>`;
     document.getElementById("another").onclick = () => { sellResult = null; viewSell(); };
     return;
   }
-  const lastPhone = store("bandeja-last-phone", "");
+
+  // values to prefill
+  const wNums = editing ? (r.weight.match(/\d+/g) || []) : [];
+  const val = editing ? {
+    name: r.name, condition: r.condition, price: String(r.price).replace(".", ","), shape: r.shapeKnown === false ? "" : r.shape,
+    w1: wNums[0] || "", w2: wNums[1] || "", notes: r.notes, review: r.review, place: r.location, town: r.town,
+    phone: r.seller.phone.replace(/\D/g, "")
+  } : {
+    name: "", condition: "New", price: "", shape: "", w1: "", w2: "", notes: "", review: "",
+    place: store("bandeja-last-place", ""), town: store("bandeja-last-town", ""), phone: store("bandeja-last-phone", "")
+  };
+  // photos: existing ones (editing) and new files, in display order
+  let pics = editing ? r.photoPaths.map((path, i) => ({ path, url: r.photos[i] })) : [];
+
   app.innerHTML = `
-    <button class="back" type="button" id="back">← Todas as raquetes</button>
-    <h1 class="page-title">Vender raquete</h1>
+    <button class="back" type="button" id="back">← ${editing ? "Voltar ao anúncio" : "Todas as raquetes"}</button>
+    <h1 class="page-title">${editing ? "Editar anúncio" : "Vender raquete"}</h1>
     <div class="sell-layout">
       <form class="panel" id="sellForm" novalidate>
-        <div class="field"><label for="s-name">Nome da raquete</label><input id="s-name" maxlength="80" placeholder="Marca, modelo e ano" required></div>
+        <div class="field"><label for="s-name">Nome da raquete</label><input id="s-name" maxlength="80" placeholder="Marca, modelo e ano" value="${esc(val.name)}" required></div>
         <div class="two">
           <div class="field"><label for="s-cond">Estado</label>
-            <select id="s-cond">${CONDITIONS.map(c => `<option value="${c}">${COND_PT[c]}</option>`).join("")}</select></div>
-          <div class="field"><label for="s-price">Preço (€)</label><input id="s-price" inputmode="decimal" placeholder="120" required></div>
+            <select id="s-cond">${CONDITIONS.map(c => `<option value="${c}" ${c === val.condition ? "selected" : ""}>${COND_PT[c]}</option>`).join("")}</select></div>
+          <div class="field"><label for="s-price">Preço (€)</label><input id="s-price" inputmode="decimal" placeholder="120" value="${esc(val.price)}" required></div>
         </div>
         <div class="two">
           <div class="field"><label for="s-shape">Formato</label>
-            <select id="s-shape"><option value="">Não sei</option><option value="round">Redonda</option><option value="teardrop">Lágrima</option><option value="diamond">Diamante</option></select></div>
+            <select id="s-shape">${[["","Não sei"],["round","Redonda"],["teardrop","Lágrima"],["diamond","Diamante"]].map(([k, l]) => `<option value="${k}" ${k === val.shape ? "selected" : ""}>${l}</option>`).join("")}</select></div>
           <div class="field"><label for="s-weight">Peso (opcional)</label>
             <div class="weight-range">
-              <div class="unit-input"><input id="s-weight" inputmode="numeric" maxlength="3" placeholder="355" aria-label="Peso, ou peso mínimo"><span aria-hidden="true">g</span></div>
+              <div class="unit-input"><input id="s-weight" inputmode="numeric" maxlength="3" placeholder="355" value="${esc(val.w1)}" aria-label="Peso, ou peso mínimo"><span aria-hidden="true">g</span></div>
               <span class="meta">até</span>
-              <div class="unit-input"><input id="s-weight2" inputmode="numeric" maxlength="3" placeholder="375" aria-label="Peso máximo (opcional)"><span aria-hidden="true">g</span></div>
+              <div class="unit-input"><input id="s-weight2" inputmode="numeric" maxlength="3" placeholder="375" value="${esc(val.w2)}" aria-label="Peso máximo (opcional)"><span aria-hidden="true">g</span></div>
             </div>
             <span class="hint">Com pesos removíveis, indique o mínimo e o máximo. Se não, só o primeiro.</span></div>
         </div>
-        <div class="field"><label for="s-photos">Fotos (até 4)</label><input id="s-photos" type="file" accept="image/*" multiple>
-          <div class="previews" id="previews"></div><span class="hint">Frente, verso e quaisquer marcas ou danos.</span></div>
-        <div class="field"><label for="s-notes">Descrição</label><textarea id="s-notes" rows="4" maxlength="600" placeholder="Quanto foi usada, marcas, o que inclui"></textarea></div>
-        <div class="field"><label for="s-review">Link de review no YouTube (opcional)</label><input id="s-review" inputmode="url" placeholder="https://www.youtube.com/watch?v=…"></div>
+        <div class="field"><span class="field-label">Fotos (até 4)</span>
+          <div class="previews" id="previews"></div>
+          <label class="btn btn-ghost add-photos" id="addPhotosBtn" for="s-photos">Adicionar fotos</label>
+          <input id="s-photos" type="file" accept="image/*" multiple class="sr-only">
+          <span class="hint">Frente, verso e quaisquer marcas ou danos. A primeira foto é a capa.</span></div>
+        <div class="field"><label for="s-notes">Descrição</label><textarea id="s-notes" rows="4" maxlength="600" placeholder="Quanto foi usada, marcas, o que inclui">${esc(val.notes)}</textarea></div>
+        <div class="field"><label for="s-review">Link de review no YouTube (opcional)</label><input id="s-review" inputmode="url" placeholder="https://www.youtube.com/watch?v=…" value="${esc(val.review)}"></div>
         <div class="two">
           <div class="field"><label for="s-place">Localização</label>
-            <select id="s-place" required>${placeOptions(store("bandeja-last-place", ""), "Escolha a ilha ou distrito")}</select></div>
-          <div class="field"><label for="s-town">Localidade (opcional)</label><input id="s-town" maxlength="60" placeholder="Ponta Delgada" value="${esc(store("bandeja-last-town", ""))}"></div>
+            <select id="s-place" required>${placeOptions(val.place, "Escolha a ilha ou distrito")}</select></div>
+          <div class="field"><label for="s-town">Localidade (opcional)</label><input id="s-town" maxlength="60" placeholder="Ponta Delgada" value="${esc(val.town)}"></div>
         </div>
-        <div class="field"><label for="s-phone">O seu telemóvel (WhatsApp)</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(lastPhone)}" required>
+        <div class="field"><label for="s-phone">O seu telemóvel (WhatsApp)</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(val.phone)}" required>
           <span class="hint">O anúncio aparece com o nome do seu perfil: <b>${esc(displayName(myProfile()))}</b>.</span></div>
-        <label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o nome do meu perfil e o meu número de telemóvel ficam visíveis no anúncio, para que os compradores interessados me contactem por WhatsApp ou telefone.</span></label>
+        ${editing ? "" : `<label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o nome do meu perfil e o meu número de telemóvel ficam visíveis no anúncio, para que os compradores interessados me contactem por WhatsApp ou telefone.</span></label>`}
         <p class="error" id="sellError" hidden></p>
-        <button class="btn btn-primary" type="submit" id="sellSubmit" style="width:100%;margin-top:14px">Anunciar a minha raquete</button>
+        <div class="actions" style="margin-top:14px">
+          <button class="btn btn-primary" type="submit" id="sellSubmit" style="flex:1">${editing ? "Guardar alterações" : "Anunciar a minha raquete"}</button>
+          ${editing ? `<button class="btn btn-ghost" type="button" id="cancelEdit">Cancelar</button>` : ""}
+        </div>
       </form>
       <div class="panel">
         <div style="font-weight:700;margin-bottom:6px">Como funciona a venda</div>
@@ -994,22 +1028,39 @@ function viewSell() {
           <li>A sua raquete aparece logo na página inicial.</li>
           <li>Quem estiver interessado contacta-o por WhatsApp ou telefone.</li>
           <li>Combinam diretamente o pagamento e a entrega.</li>
-          <li>Combina o levantamento ou o envio com o comprador.</li>
-          <li>Quando vender, remova o anúncio em <a href="#account">A minha conta</a>.</li>
+          <li>Pode editar o anúncio a qualquer momento em <a href="#account">A minha conta</a>.</li>
+          <li>Quando vender, marque-a como vendida para o comprador o poder avaliar.</li>
         </ol>
       </div>
     </div>`;
-  document.getElementById("back").onclick = () => go("shop");
+
+  const backTo = editing ? "r-" + r.id : "shop";
+  document.getElementById("back").onclick = () => go(backTo);
+  const cancel = document.getElementById("cancelEdit"); if (cancel) cancel.onclick = () => go(backTo);
   ["s-weight", "s-weight2"].forEach(id => { const wt = document.getElementById(id);
     wt.oninput = () => { const d = wt.value.replace(/\D/g, ""); if (d !== wt.value) wt.value = d; }; });
-  const cond = document.getElementById("s-cond");
-  let files = [];
-  const photos = document.getElementById("s-photos");
-  photos.onchange = () => {
-    files = [...photos.files].filter(f => f.type.startsWith("image/")).slice(0, 4);
-    document.getElementById("previews").innerHTML = files.map(f => `<img src="${URL.createObjectURL(f)}" alt="">`).join("");
-    if (photos.files.length > 4) toast("Só serão usadas as primeiras 4 fotos");
+
+  const drawPics = () => {
+    document.getElementById("previews").innerHTML = pics.map((p, i) => `
+      <div class="pic">
+        <img src="${esc(p.url)}" alt="Foto ${i + 1}">
+        ${i === 0 ? `<span class="pic-tag">Capa</span>` : ""}
+        <button type="button" class="pic-x" data-i="${i}" aria-label="Tirar a foto ${i + 1}">×</button>
+      </div>`).join("");
+    document.getElementById("addPhotosBtn").hidden = pics.length >= 4;
+    document.querySelectorAll(".pic-x").forEach(b => b.onclick = () => { pics.splice(+b.dataset.i, 1); drawPics(); });
   };
+  drawPics();
+  const input = document.getElementById("s-photos");
+  input.onchange = () => {
+    const room = 4 - pics.length;
+    const chosen = [...input.files].filter(f => f.type.startsWith("image/"));
+    chosen.slice(0, room).forEach(file => pics.push({ file, url: URL.createObjectURL(file) }));
+    if (chosen.length > room) toast("Só cabem 4 fotos por anúncio");
+    input.value = "";
+    drawPics();
+  };
+
   document.getElementById("sellForm").onsubmit = async e => {
     e.preventDefault();
     const v = id => document.getElementById(id).value.trim();
@@ -1026,38 +1077,53 @@ function viewSell() {
     if (w2 && !w1) return fail("Indique o peso mínimo no primeiro campo.");
     if ((w1 && !okW(w1)) || (w2 && !okW(w2))) return fail("Indique o peso em gramas, entre 250 e 450 (por exemplo 365).");
     if (w2 && +w2 <= +w1) return fail("O peso máximo tem de ser maior do que o mínimo.");
-    if (!files.length) return fail("Adicione pelo menos uma foto da raquete.");
-    if (!ALL_PLACES.includes(document.getElementById("s-place").value)) return fail("Escolha a localização da raquete.");
+    if (!pics.length) return fail("Adicione pelo menos uma foto da raquete.");
+    if (!ALL_PLACES.includes(v("s-place"))) return fail("Escolha a localização da raquete.");
     if (!/^9[1236]\d{7}$/.test(phone)) return fail("Introduza o seu telemóvel: 9 dígitos, a começar por 91, 92, 93 ou 96.");
-    if (!document.getElementById("s-consent").checked) return fail("Marque a caixa para aceitar mostrar o seu nome e número.");
+    if (!editing && !document.getElementById("s-consent").checked) return fail("Marque a caixa para aceitar mostrar o seu nome e número.");
     if (!user) return viewLogin();
     const btn = document.getElementById("sellSubmit");
     btn.disabled = true;
     const uploaded = [];
     try {
-      for (let i = 0; i < files.length; i++) {
-        btn.textContent = `A enviar foto ${i + 1} de ${files.length}…`;
-        const blob = await shrink(files[i]);
-        const path = `${user.id}/${(crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + i + "-" + Math.random().toString(16).slice(2))}.jpg`;
+      const newPics = pics.filter(p => p.file);
+      const paths = [];
+      for (const p of pics) {
+        if (!p.file) { paths.push(p.path); continue; }
+        btn.textContent = `A enviar foto ${uploaded.length + 1} de ${newPics.length}…`;
+        const blob = await shrink(p.file);
+        const path = `${user.id}/${(crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + paths.length + "-" + Math.random().toString(16).slice(2))}.jpg`;
         const { error } = await sb.storage.from("photos").upload(path, blob, { contentType: "image/jpeg" });
         if (error) throw error;
-        uploaded.push(path);
+        uploaded.push(path); paths.push(path);
       }
-      btn.textContent = "A publicar…";
-      const { data: newId, error } = await sb.rpc("create_listing", {
-        p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
-        p_shape: document.getElementById("s-shape").value, p_weight: weightText(v("s-weight"), v("s-weight2")), p_notes: v("s-notes"),
-        p_review: review, p_photos: uploaded, p_seller_phone: phone,
-        p_location: document.getElementById("s-place").value, p_town: v("s-town") });
-      if (error) throw error;
-      put("bandeja-last-phone", phone); put("bandeja-last-place", document.getElementById("s-place").value); put("bandeja-last-town", v("s-town"));
-      sellResult = { id: newId, name: v("s-name") };
-      viewSell(); window.scrollTo(0, 0);
-      loadListings();
+      btn.textContent = editing ? "A guardar…" : "A publicar…";
+      const fields = {
+        p_name: v("s-name"), p_condition: v("s-cond"), p_price: Math.round(price * 100) / 100,
+        p_shape: v("s-shape"), p_weight: weightText(w1, w2), p_notes: v("s-notes"),
+        p_review: review, p_photos: paths, p_seller_phone: phone, p_location: v("s-place"), p_town: v("s-town")
+      };
+      put("bandeja-last-phone", phone); put("bandeja-last-place", v("s-place")); put("bandeja-last-town", v("s-town"));
+      if (editing) {
+        const { data: ok, error } = await sb.rpc("update_listing", { p_id: r.uuid, ...fields });
+        if (error) throw error;
+        if (!ok) throw new Error("o anúncio já não pode ser editado");
+        const removed = r.photoPaths.filter(p => !paths.includes(p) && p.startsWith(user.id + "/"));
+        if (removed.length) sb.storage.from("photos").remove(removed).catch(() => {});
+        toast("Alterações guardadas");
+        await loadListings();
+        go("r-" + r.id);
+      } else {
+        const { data: newId, error } = await sb.rpc("create_listing", fields);
+        if (error) throw error;
+        sellResult = { id: newId, name: v("s-name") };
+        viewSell(); window.scrollTo(0, 0);
+        loadListings();
+      }
     } catch (ex) {
       if (uploaded.length) sb.storage.from("photos").remove(uploaded).catch(() => {});
-      btn.disabled = false; btn.textContent = "Anunciar a minha raquete";
-      fail("Não foi possível anunciar a raquete (" + (ex.message || "erro") + "). Verifique a ligação e tente de novo.");
+      btn.disabled = false; btn.textContent = editing ? "Guardar alterações" : "Anunciar a minha raquete";
+      fail((editing ? "Não foi possível guardar as alterações (" : "Não foi possível anunciar a raquete (") + (ex.message || "erro") + "). Verifique a ligação e tente de novo.");
     }
   };
 }
@@ -1092,6 +1158,7 @@ function render(scroll = true) {
   if (h.startsWith("r-") && byId(h.slice(2))) viewRacket(byId(h.slice(2)));
   else if (h.startsWith("r-u") && listingsState === "loading") app.innerHTML = `<p class="status">A carregar raquete…</p>`;
   else if (h === "sell") viewSell();
+  else if (h.startsWith("edit-")) { const r = byId(h.slice(5)); if (r) viewListingForm(r); else app.innerHTML = listingsState === "loading" ? `<p class="status">A carregar…</p>` : `<div class="panel"><p>Este anúncio já não existe.</p></div>`; }
   else if (h === "login") viewLogin();
   else if (h === "setup") viewSetup();
   else if (h.startsWith("p-")) viewProfile(h.slice(2));

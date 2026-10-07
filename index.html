@@ -239,6 +239,7 @@ a.seller-box:hover { border-color: var(--ball); }
 .unit-input input { border: 0 !important; background: transparent !important; flex: 1; min-width: 0; }
 .unit-input span { color: var(--muted); font-weight: 600; }
 .unit-input:focus-within { border-color: var(--ball); }
+.weight-range { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: center; }
 .sold-form .inline-form { margin-top: 0; }
 .star-pick { display: flex; gap: 4px; }
 .star-pick button { background: none; border: 0; font-size: 30px; line-height: 1; color: var(--line); cursor: pointer; padding: 2px; }
@@ -971,7 +972,13 @@ function viewSell() {
         <div class="two">
           <div class="field"><label for="s-shape">Formato</label>
             <select id="s-shape"><option value="">Não sei</option><option value="round">Redonda</option><option value="teardrop">Lágrima</option><option value="diamond">Diamante</option></select></div>
-          <div class="field"><label for="s-weight">Peso (opcional)</label><div class="unit-input"><input id="s-weight" inputmode="numeric" maxlength="3" placeholder="365"><span aria-hidden="true">g</span></div></div>
+          <div class="field"><label for="s-weight">Peso (opcional)</label>
+            <div class="weight-range">
+              <div class="unit-input"><input id="s-weight" inputmode="numeric" maxlength="3" placeholder="355" aria-label="Peso, ou peso mínimo"><span aria-hidden="true">g</span></div>
+              <span class="meta">até</span>
+              <div class="unit-input"><input id="s-weight2" inputmode="numeric" maxlength="3" placeholder="375" aria-label="Peso máximo (opcional)"><span aria-hidden="true">g</span></div>
+            </div>
+            <span class="hint">Com pesos removíveis, indique o mínimo e o máximo. Se não, só o primeiro.</span></div>
         </div>
         <div class="field"><label for="s-photos">Fotos (até 4)</label><input id="s-photos" type="file" accept="image/*" multiple>
           <div class="previews" id="previews"></div><span class="hint">Frente, verso e quaisquer marcas ou danos.</span></div>
@@ -1000,8 +1007,8 @@ function viewSell() {
       </div>
     </div>`;
   document.getElementById("back").onclick = () => go("shop");
-  const wt = document.getElementById("s-weight");
-  wt.oninput = () => { const d = wt.value.replace(/\D/g, ""); if (d !== wt.value) wt.value = d; };
+  ["s-weight", "s-weight2"].forEach(id => { const wt = document.getElementById(id);
+    wt.oninput = () => { const d = wt.value.replace(/\D/g, ""); if (d !== wt.value) wt.value = d; }; });
   const cond = document.getElementById("s-cond");
   cond.onchange = () => document.getElementById("s-cond-hint").textContent = CONDITION_INFO[cond.value];
   let files = [];
@@ -1023,7 +1030,10 @@ function viewSell() {
     if (v("s-name").length < 3) return fail("Introduza o nome da raquete, por exemplo marca e modelo.");
     if (!(price > 0 && price < 5000)) return fail("Introduza um preço em euros, por exemplo 120.");
     if (review && !safeYouTube(review)) return fail("O link da review tem de ser um link do YouTube que comece por https://.");
-    if (v("s-weight") && !(+v("s-weight") >= 250 && +v("s-weight") <= 450)) return fail("Indique o peso em gramas, entre 250 e 450 (por exemplo 365).");
+    const w1 = v("s-weight"), w2 = v("s-weight2"), okW = w => +w >= 250 && +w <= 450;
+    if (w2 && !w1) return fail("Indique o peso mínimo no primeiro campo.");
+    if ((w1 && !okW(w1)) || (w2 && !okW(w2))) return fail("Indique o peso em gramas, entre 250 e 450 (por exemplo 365).");
+    if (w2 && +w2 <= +w1) return fail("O peso máximo tem de ser maior do que o mínimo.");
     if (!files.length) return fail("Adicione pelo menos uma foto da raquete.");
     if (!ALL_PLACES.includes(document.getElementById("s-place").value)) return fail("Escolha a localização da raquete.");
     if (!/^9[1236]\d{7}$/.test(phone)) return fail("Introduza o seu telemóvel: 9 dígitos, a começar por 91, 92, 93 ou 96.");
@@ -1044,7 +1054,7 @@ function viewSell() {
       btn.textContent = "A publicar…";
       const { data: newId, error } = await sb.rpc("create_listing", {
         p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
-        p_shape: document.getElementById("s-shape").value, p_weight: v("s-weight") ? v("s-weight") + " g" : "", p_notes: v("s-notes"),
+        p_shape: document.getElementById("s-shape").value, p_weight: weightText(v("s-weight"), v("s-weight2")), p_notes: v("s-notes"),
         p_review: review, p_photos: uploaded, p_seller_phone: phone,
         p_location: document.getElementById("s-place").value, p_town: v("s-town") });
       if (error) throw error;
@@ -1059,6 +1069,9 @@ function viewSell() {
     }
   };
 }
+
+/* "355 g", or "355–375 g" for rackets with removable weights */
+const weightText = (a, b) => !a ? "" : b && +b > +a ? `${a}–${b} g` : `${a} g`;
 
 function shrink(file) {
   return new Promise((resolve, reject) => {

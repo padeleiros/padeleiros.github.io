@@ -235,6 +235,10 @@ a.seller-box:hover { border-color: var(--ball); }
 .at-input span { color: var(--muted); font-weight: 600; }
 .at-input input { border: 0 !important; background: transparent !important; padding-left: 4px !important; flex: 1; min-width: 0; }
 .at-input:focus-within { border-color: var(--ball); }
+.unit-input { display: flex; align-items: center; border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding-right: 12px; }
+.unit-input input { border: 0 !important; background: transparent !important; flex: 1; min-width: 0; }
+.unit-input span { color: var(--muted); font-weight: 600; }
+.unit-input:focus-within { border-color: var(--ball); }
 .sold-form .inline-form { margin-top: 0; }
 .star-pick { display: flex; gap: 4px; }
 .star-pick button { background: none; border: 0; font-size: 30px; line-height: 1; color: var(--line); cursor: pointer; padding: 2px; }
@@ -967,7 +971,7 @@ function viewSell() {
         <div class="two">
           <div class="field"><label for="s-shape">Formato</label>
             <select id="s-shape"><option value="">Não sei</option><option value="round">Redonda</option><option value="teardrop">Lágrima</option><option value="diamond">Diamante</option></select></div>
-          <div class="field"><label for="s-weight">Peso</label><input id="s-weight" maxlength="20" placeholder="365 g"></div>
+          <div class="field"><label for="s-weight">Peso (opcional)</label><div class="unit-input"><input id="s-weight" inputmode="numeric" maxlength="3" placeholder="365"><span aria-hidden="true">g</span></div></div>
         </div>
         <div class="field"><label for="s-photos">Fotos (até 4)</label><input id="s-photos" type="file" accept="image/*" multiple>
           <div class="previews" id="previews"></div><span class="hint">Frente, verso e quaisquer marcas ou danos.</span></div>
@@ -996,6 +1000,8 @@ function viewSell() {
       </div>
     </div>`;
   document.getElementById("back").onclick = () => go("shop");
+  const wt = document.getElementById("s-weight");
+  wt.oninput = () => { const d = wt.value.replace(/\D/g, ""); if (d !== wt.value) wt.value = d; };
   const cond = document.getElementById("s-cond");
   cond.onchange = () => document.getElementById("s-cond-hint").textContent = CONDITION_INFO[cond.value];
   let files = [];
@@ -1017,6 +1023,7 @@ function viewSell() {
     if (v("s-name").length < 3) return fail("Introduza o nome da raquete, por exemplo marca e modelo.");
     if (!(price > 0 && price < 5000)) return fail("Introduza um preço em euros, por exemplo 120.");
     if (review && !safeYouTube(review)) return fail("O link da review tem de ser um link do YouTube que comece por https://.");
+    if (v("s-weight") && !(+v("s-weight") >= 250 && +v("s-weight") <= 450)) return fail("Indique o peso em gramas, entre 250 e 450 (por exemplo 365).");
     if (!files.length) return fail("Adicione pelo menos uma foto da raquete.");
     if (!ALL_PLACES.includes(document.getElementById("s-place").value)) return fail("Escolha a localização da raquete.");
     if (!/^9[1236]\d{7}$/.test(phone)) return fail("Introduza o seu telemóvel: 9 dígitos, a começar por 91, 92, 93 ou 96.");
@@ -1037,7 +1044,7 @@ function viewSell() {
       btn.textContent = "A publicar…";
       const { data: newId, error } = await sb.rpc("create_listing", {
         p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
-        p_shape: document.getElementById("s-shape").value, p_weight: v("s-weight"), p_notes: v("s-notes"),
+        p_shape: document.getElementById("s-shape").value, p_weight: v("s-weight") ? v("s-weight") + " g" : "", p_notes: v("s-notes"),
         p_review: review, p_photos: uploaded, p_seller_phone: phone,
         p_location: document.getElementById("s-place").value, p_town: v("s-town") });
       if (error) throw error;

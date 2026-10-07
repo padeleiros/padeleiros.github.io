@@ -311,7 +311,7 @@ const sb = ONLINE && window.supabase
   ? window.supabase.createClient(SUPABASE.url, SUPABASE.key, { auth: { flowType: "pkce", detectSessionInUrl: true, persistSession: true } })
   : null;
 let user = null;
-const PHOTO_RE = /^[0-9a-f-]{36}\/[a-z0-9-]+\.jpg$/;
+const PHOTO_RE = /^([0-9a-f-]{36}\/)?[a-z0-9-]+\.jpg$/;   // older listings have photos without a folder
 const photoUrl = p => `${SUPABASE.url}/storage/v1/object/public/photos/${p.split("/").map(encodeURIComponent).join("/")}`;
 
 function fromRow(row) {

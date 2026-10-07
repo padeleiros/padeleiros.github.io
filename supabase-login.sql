@@ -1,8 +1,10 @@
 -- Bandeja: listings belong to signed-in accounts (Google login).
 -- Run once, after supabase-setup.sql: SQL Editor -> New query -> paste -> Run.
 
+-- New listings get the signed-in user's id. Listings made before login existed keep an empty user_id
+-- (nobody can remove those from the site; delete them in Table Editor if needed).
 alter table public.listings
-  add column if not exists user_id uuid not null default auth.uid() references auth.users(id) on delete cascade;
+  add column if not exists user_id uuid default auth.uid() references auth.users(id) on delete cascade;
 alter table public.listings drop column if exists manage_code;
 create index if not exists listings_user_id_idx on public.listings(user_id);
 

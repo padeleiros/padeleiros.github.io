@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bandeja Raquetes de Padel</title>
+<title>Padeleiros</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
@@ -238,9 +238,9 @@ a.seller-box:hover { border-color: var(--court); }
 <body>
 <header class="topbar">
   <div class="topbar-inner">
-    <a class="brand" href="#shop" aria-label="Bandeja, voltar a todas as raquetes">
+    <a class="brand" href="#shop" aria-label="Padeleiros, voltar a todas as raquetes">
       <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="#d9f24a"/><path d="M4 11c5 3 17 3 22 0M4 19c5-3 17-3 22 0" stroke="#1b2a06" stroke-width="1.6" fill="none"/></svg>
-      <span class="brand-name">Bandeja</span>
+      <span class="brand-name">Padeleiros</span>
     </a>
     <div class="top-actions">
       <button class="sell-btn" id="sellBtn" type="button">Vender raquete</button>
@@ -266,7 +266,7 @@ a.seller-box:hover { border-color: var(--court); }
    SHOP SETTINGS — edit these
    ============================================================ */
 const SHOP = {
-  name: "Bandeja",
+  name: "Padeleiros",
   mbwayNumber: "912 345 678",        // your MB WAY phone number (shown to buyers)
   whatsapp: "351912345678",          // same number with country code, digits only
   shipping: [
@@ -285,38 +285,7 @@ const SUPABASE = {
 /* Your own rackets. condition: "New" | "Like new" | "Very good" | "Good" | "Fair"
    shape: "round" | "teardrop" | "diamond". colors draw the placeholder pictures
    until you add real photos (put image files in the repo and list them in photos). */
-const RACKETS = [
-  { id: "vertex04", name: "Bullpadel Vertex 04 2024", condition: "Very good", price: 145,
-    shape: "diamond", weight: "365 g", core: "MultiEVA (hard)", face: "Carbon 12K", year: 2024,
-    notes: "Usada cerca de 3 meses. Pequeno risco no protetor do aro, a face está limpa. Inclui a capa original.",
-    review: "https://www.youtube.com/results?search_query=Bullpadel+Vertex+04+2024+review",
-    colors: ["#111827", "#f97316", "#facc15"] },
-  { id: "viper24", name: "Babolat Technical Viper 2024", condition: "New", price: 249,
-    shape: "diamond", weight: "365 g", core: "Black EVA (hard)", face: "Carbon 12K", year: 2024,
-    notes: "Nova, ainda no plástico. Com garantia completa do fabricante.",
-    review: "https://www.youtube.com/results?search_query=Babolat+Technical+Viper+2024+review",
-    colors: ["#0b0b0b", "#e11d48", "#f5f5f5"] },
-  { id: "at10", name: "Nox AT10 Genius 18K 2024", condition: "Like new", price: 189,
-    shape: "teardrop", weight: "370 g", core: "MLD Black EVA", face: "Carbon 18K", year: 2024,
-    notes: "Usada duas vezes, depois mudei para uma raquete redonda. Sem marcas.",
-    review: "https://www.youtube.com/results?search_query=Nox+AT10+Genius+18K+2024+review",
-    colors: ["#1e293b", "#eab308", "#ffffff"] },
-  { id: "extreme", name: "Head Extreme Pro 2024", condition: "Good", price: 95,
-    shape: "teardrop", weight: "360 g", core: "Power Foam", face: "Carbon", year: 2024,
-    notes: "Uma época de jogo no clube. Desgaste normal nas bordas, grip trocado recentemente.",
-    review: "https://www.youtube.com/results?search_query=Head+Extreme+Pro+2024+padel+review",
-    colors: ["#0f172a", "#22d3ee", "#a3e635"] },
-  { id: "ml10", name: "Nox ML10 Pro Cup", condition: "Good", price: 79,
-    shape: "round", weight: "360 g", core: "HR3 Black EVA (soft)", face: "Fibreglass", year: 2023,
-    notes: "Raquete de controlo fácil de jogar, boa para iniciantes. Marcas ligeiras na face.",
-    review: "https://www.youtube.com/results?search_query=Nox+ML10+Pro+Cup+review",
-    colors: ["#111111", "#dc2626", "#fbbf24"] },
-  { id: "metalbone", name: "Adidas Metalbone 3.3", condition: "Fair", price: 110,
-    shape: "diamond", weight: "370 g", core: "EVA High Memory", face: "Carbon Aluminized 16K", year: 2024,
-    notes: "Muito jogada durante uma época. Lascas visíveis no topo do aro, estruturalmente em bom estado. Preço ajustado a isso.",
-    review: "https://www.youtube.com/results?search_query=Adidas+Metalbone+3.3+review",
-    colors: ["#1f2937", "#3b82f6", "#e5e7eb"] }
-];
+const RACKETS = [];   // add the shop's own rackets here (see README)
 /* ============================================================ */
 
 const ONLINE = !!(SUPABASE.url && SUPABASE.key);
@@ -516,8 +485,11 @@ function viewShop() {
     <section class="grid">
       ${list.map(card).join("")}
     </section>
-    <p class="notice">As raquetes da loja são exemplos. Substitua-as nas definições da loja.</p>`;
+    ${!list.length && listingsState !== "loading" ? `<div class="panel empty"><p>${filter === "all" ? "Ainda não há raquetes à venda." : "Não há raquetes " + (filter === "new" ? "novas" : "usadas") + " à venda neste momento."}</p>${ONLINE ? `<button class="btn btn-primary" type="button" id="firstSell">Anunciar uma raquete</button>` : ""}</div>` : ""}
+    <section hidden>
+    </section>`;
   app.querySelectorAll("[data-filter]").forEach(b => b.onclick = () => { filter = b.dataset.filter; viewShop(); });
+  const fs = document.getElementById("firstSell"); if (fs) fs.onclick = () => { sellResult = null; go("sell"); };
 }
 
 function viewRacket(r) {
@@ -532,7 +504,7 @@ function viewRacket(r) {
   const sp = r.remote && PROFILES[r.userId];
   const sellerBox = sp
     ? `<a class="seller-box" href="#p-${esc(sp.username)}"><span class="avatar sm" aria-hidden="true">${esc((sp.full_name || sp.username)[0].toUpperCase())}</span><span style="min-width:0"><b>${esc(displayName(sp))}</b><br>${ratingLine(sp.id)}</span><span class="chev" aria-hidden="true">›</span></a>`
-    : `<div class="seller-box"><span class="avatar sm" aria-hidden="true">${esc(r.seller.name[0].toUpperCase())}</span><span><b>${esc(r.seller.name)}</b><br><span class="meta">${r.remote ? "Vendedor" : "Loja Bandeja"}</span></span></div>`;
+    : `<div class="seller-box"><span class="avatar sm" aria-hidden="true">${esc(r.seller.name[0].toUpperCase())}</span><span><b>${esc(r.seller.name)}</b><br><span class="meta">${r.remote ? "Vendedor" : "Loja Padeleiros"}</span></span></div>`;
   app.innerHTML = `
     <button class="back" type="button" id="back">← Todas as raquetes</button>
     <section class="detail">
@@ -646,7 +618,7 @@ function viewSetup() {
   app.innerHTML = `
     <h1 class="page-title">${p ? "Editar perfil" : "Escolha o seu nome de utilizador"}</h1>
     <form class="panel login-panel" id="setupForm" novalidate>
-      ${p ? "" : `<p>É assim que os compradores o vão ver na Bandeja. Pode mudar mais tarde.</p>`}
+      ${p ? "" : `<p>É assim que os compradores o vão ver no Padeleiros. Pode mudar mais tarde.</p>`}
       <div class="field" style="width:100%"><label for="u-name">Nome de utilizador</label>
         <div class="at-input"><span aria-hidden="true">@</span><input id="u-name" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" value="${esc(suggested)}" required></div>
         <span class="hint">3 a 20 caracteres: letras minúsculas, números, ponto ou _.</span></div>
@@ -730,7 +702,7 @@ function viewProfile(username) {
       <div class="avatar" aria-hidden="true">${esc((p.full_name || p.username)[0].toUpperCase())}</div>
       <div style="min-width:0">
         <h1>${esc(p.full_name || "@" + p.username)}</h1>
-        <div class="meta">${p.full_name ? "@" + esc(p.username) + " · " : ""}Na Bandeja desde ${fmtDate(p.created_at)}</div>
+        <div class="meta">${p.full_name ? "@" + esc(p.username) + " · " : ""}No Padeleiros desde ${fmtDate(p.created_at)}</div>
         <div class="profile-stats">${ratingLine(p.id)} <span class="meta">· ${s.sold} ${s.sold === 1 ? "venda" : "vendas"}</span></div>
       </div>
       ${user && user.id === p.id ? `<button class="btn btn-ghost" type="button" id="editProfile">Editar perfil</button>` : ""}
@@ -784,7 +756,7 @@ function viewAccount() {
               <label for="buyer-${esc(r.id)}">Quem comprou? (nome de utilizador)</label>
               <div class="inline-form"><div class="at-input" style="flex:1"><span aria-hidden="true">@</span><input id="buyer-${esc(r.id)}" autocapitalize="none" spellcheck="false" placeholder="joao.silva"></div>
               <button class="btn btn-primary" type="submit">Confirmar venda</button></div>
-              <span class="hint">O comprador precisa de ter conta na Bandeja para poder avaliar a venda. Depois de confirmar, não é possível desfazer.</span>
+              <span class="hint">O comprador precisa de ter conta no Padeleiros para poder avaliar a venda. Depois de confirmar, não é possível desfazer.</span>
               <p class="error" hidden></p>
             </form>`).join("")}</div>` : `<p class="status">Não tem raquetes à venda.</p>`}
           <div class="actions"><button class="btn btn-primary" type="button" id="newListing">Anunciar uma raquete</button></div>
@@ -831,7 +803,7 @@ function viewAccount() {
     const fail = m => { err.textContent = m; err.hidden = false; };
     const name = f.querySelector("input").value.trim().replace(/^@/, "").toLowerCase();
     const buyer = profileByName(name);
-    if (!buyer) return fail("Não existe nenhuma conta @" + name + ". Peça ao comprador o nome de utilizador dele na Bandeja.");
+    if (!buyer) return fail("Não existe nenhuma conta @" + name + ". Peça ao comprador o nome de utilizador dele no Padeleiros.");
     if (buyer.id === user.id) return fail("Não pode vender a si próprio.");
     const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
     const soldAt = new Date().toISOString();
@@ -1060,7 +1032,7 @@ function viewBasket() {
       <div class="panel">
         <form id="checkoutForm" novalidate>
           ${hasShop ? `<div class="field">
-            <span id="dlabel" style="font-weight:600;font-size:14px">Entrega das raquetes da ${esc(SHOP.name)}</span>
+            <span id="dlabel" style="font-weight:600;font-size:14px">Entrega das raquetes da loja ${esc(SHOP.name)}</span>
             <div class="radio-group" role="radiogroup" aria-labelledby="dlabel">
               ${SHOP.shipping.map(s => `<label class="radio"><input type="radio" name="delivery" id="del-${s.id}" value="${s.id}" ${checkout.delivery === s.id ? "checked" : ""}> <span style="flex:1">${esc(s.label)}</span> <span class="meta">${s.price ? euro(s.price) : "Grátis"}</span></label>`).join("")}
             </div>
@@ -1103,7 +1075,7 @@ function readForm() {
 }
 
 function placeOrder(phoneDigits) {
-  const ref = "BJ-" + Math.floor(1000 + Math.random() * 9000);
+  const ref = "PD-" + Math.floor(1000 + Math.random() * 9000);
   const delivery = SHOP.shipping.find(s => s.id === checkout.delivery);
   order = { ref, groups: groups().map(g => ({ ...g, text: [
     `Nova encomenda ${ref}`,
@@ -1176,7 +1148,7 @@ function render(scroll = true) {
 window.addEventListener("hashchange", () => render());
 document.getElementById("basketBtn").onclick = () => go("basket");
 document.getElementById("sellBtn").onclick = () => { sellResult = null; go("sell"); };
-document.getElementById("footContact").textContent = "MB WAY da loja: " + SHOP.mbwayNumber;
+document.getElementById("footContact").textContent = RACKETS.length ? "MB WAY da loja: " + SHOP.mbwayNumber : "";
 document.getElementById("count").textContent = basket.length;
 function updateAccountBtn() {
   const b = document.getElementById("accountBtn");

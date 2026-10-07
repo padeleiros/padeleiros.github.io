@@ -1,4 +1,4 @@
-# Bandeja — Raquetes de Padel
+# Padeleiros — Raquetes de Padel
 
 Loja simples de raquetes de padel, novas e usadas, em português de Portugal. O pagamento é por MB WAY.
 

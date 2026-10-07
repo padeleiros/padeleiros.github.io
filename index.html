@@ -147,6 +147,35 @@ form input:focus, form textarea:focus { border-color: var(--court); outline: non
 .steps { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
 .notice { font-size: 13px; color: var(--muted); text-align: center; padding: 20px 16px 0; }
 footer { border-top: 1px solid var(--line); max-width: 1120px; margin: 0 auto; padding: 18px 16px 30px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between; }
+.top-actions { display: flex; gap: 8px; align-items: center; }
+.sell-btn { background: var(--ball); color: var(--ball-ink); border: 0; border-radius: 999px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
+.art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-main img { width: 100%; height: 100%; object-fit: contain; border-radius: 16px; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+.line .mini img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+.seller { font-size: 13px; color: var(--muted); }
+.seller b { color: var(--fg); font-weight: 600; }
+.sell-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .sell-layout { grid-template-columns: 1fr; } }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
+form select { border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+.previews { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.previews img { aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; width: 100%; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.check input { margin-top: 4px; accent-color: var(--court); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.code { font: 500 22px var(--font-mono); letter-spacing: .08em; background: var(--bg); border: 1.5px dashed var(--line); border-radius: 10px; padding: 10px 14px; display: inline-block; }
+.mine { display: grid; gap: 8px; }
+.mine-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.mine-row:last-child { border-bottom: 0; }
+details.owner { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 14px; }
+details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; font-size: 14px; }
+.inline-form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.inline-form input { border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; flex: 1; min-width: 0; }
+.pay-box h2 { font: 800 22px var(--font-display); text-transform: uppercase; margin: 0 0 8px; }
+.pay-box .btn-primary { margin-top: 16px; display: inline-block; text-decoration: none; }
+.status { color: var(--muted); font-size: 14px; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 600; z-index: 20; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -159,7 +188,10 @@ footer { border-top: 1px solid var(--line); max-width: 1120px; margin: 0 auto; p
       <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="#d9f24a"/><path d="M4 11c5 3 17 3 22 0M4 19c5-3 17-3 22 0" stroke="#1b2a06" stroke-width="1.6" fill="none"/></svg>
       <span class="brand-name">Bandeja</span>
     </a>
-    <button class="basket-btn" id="basketBtn" type="button">Basket <span class="count" id="count">0</span></button>
+    <div class="top-actions">
+      <button class="sell-btn" id="sellBtn" type="button">Sell a racket</button>
+      <button class="basket-btn" id="basketBtn" type="button">Basket <span class="count" id="count">0</span></button>
+    </div>
   </div>
 </header>
 
@@ -179,16 +211,23 @@ footer { border-top: 1px solid var(--line); max-width: 1120px; margin: 0 auto; p
 const SHOP = {
   name: "Bandeja",
   mbwayNumber: "912 345 678",        // your MB WAY phone number (shown to buyers)
-  whatsapp: "351912345678",          // same number with country code, digits only (for order messages)
+  whatsapp: "351912345678",          // same number with country code, digits only
   shipping: [
     { id: "pickup", label: "Pick up in person", price: 0 },
     { id: "ctt",    label: "Shipping in Portugal (CTT)", price: 6 }
   ]
 };
 
-/* Your rackets. condition: "New" | "Like new" | "Very good" | "Good" | "Fair"
+/* Database for listings from other sellers (see supabase-setup.sql).
+   Leave empty to switch "Sell a racket" off. The publishable/anon key is meant to be public. */
+const SUPABASE = {
+  url: "https://llyqlkdndiupwvczjenj.supabase.co",
+  key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxseXFsa2RuZGl1cHd2Y3pqZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzNzI2MDAsImV4cCI6MjEwNjk0ODYwMH0.D7RfoSlTDL2MRhK9QPf4ho_rAqFE9JzK1m6C77TF0vQ"
+};
+
+/* Your own rackets. condition: "New" | "Like new" | "Very good" | "Good" | "Fair"
    shape: "round" | "teardrop" | "diamond". colors draw the placeholder pictures
-   until you add real photos. review: link to a YouTube review. */
+   until you add real photos (put image files in the repo and list them in photos). */
 const RACKETS = [
   { id: "vertex04", name: "Bullpadel Vertex 04 2024", condition: "Very good", price: 145,
     shape: "diamond", weight: "365 g", core: "MultiEVA (hard)", face: "Carbon 12K", year: 2024,
@@ -223,6 +262,8 @@ const RACKETS = [
 ];
 /* ============================================================ */
 
+const ONLINE = !!(SUPABASE.url && SUPABASE.key);
+const CONDITIONS = ["New", "Like new", "Very good", "Good", "Fair"];
 const CONDITION_INFO = {
   "New": "Unused, in original packaging.",
   "Like new": "Used once or twice, no visible marks.",
@@ -230,12 +271,59 @@ const CONDITION_INFO = {
   "Good": "Regular use, normal wear on frame and face.",
   "Fair": "Heavy use, visible marks, plays fine."
 };
+const PALETTES = [["#111827","#f97316","#facc15"],["#0f172a","#22d3ee","#a3e635"],["#1f2937","#3b82f6","#e5e7eb"],["#111111","#dc2626","#fbbf24"],["#1e293b","#a855f7","#f5f5f5"]];
 
-const euro = n => "€" + n.toFixed(2).replace(".", ",");
-const byId = id => RACKETS.find(r => r.id === id);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const euro = n => "€" + Number(n).toFixed(2).replace(".", ",");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const fmtPhone = p => p.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3");
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : "";
+const safeYouTube = u => /^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//.test(u || "") ? u : "";
 
-/* ---------- placeholder racket drawings ---------- */
+const SHOP_SELLER = { key: "shop", name: SHOP.name, mbway: SHOP.mbwayNumber, whatsapp: SHOP.whatsapp, shop: true };
+let ITEMS = RACKETS.map(r => ({ ...r, photos: r.photos || [], seller: SHOP_SELLER, remote: false }));
+let listingsState = ONLINE ? "loading" : "off";
+const byId = id => ITEMS.find(r => r.id === id);
+
+/* ---------- database calls ---------- */
+const H = () => ({ apikey: SUPABASE.key, Authorization: "Bearer " + SUPABASE.key });
+async function api(path, opts = {}) {
+  const res = await fetch(SUPABASE.url + path, { ...opts, headers: { ...H(), ...(opts.headers || {}) } });
+  if (!res.ok) {
+    let msg = res.status + "";
+    try { const j = await res.json(); msg = j.message || j.error || msg; } catch (e) {}
+    throw new Error(msg);
+  }
+  const t = await res.text();
+  return t ? JSON.parse(t) : null;
+}
+const photoUrl = p => `${SUPABASE.url}/storage/v1/object/public/photos/${encodeURIComponent(p)}`;
+
+function fromRow(row) {
+  const pal = PALETTES[parseInt(row.id.slice(0, 2), 16) % PALETTES.length];
+  return {
+    id: "u" + row.id, uuid: row.id, remote: true,
+    name: row.name, condition: row.condition, price: Number(row.price),
+    shape: row.shape || "teardrop", shapeKnown: !!row.shape, weight: row.weight || "", notes: row.notes || "",
+    review: safeYouTube(row.review), colors: pal,
+    photos: (row.photos || []).filter(p => /^[a-z0-9-]+\.jpg$/.test(p)).map(photoUrl),
+    seller: { key: "s:" + row.seller_phone, name: row.seller_name, mbway: fmtPhone(row.seller_phone), whatsapp: "351" + row.seller_phone }
+  };
+}
+
+async function loadListings() {
+  if (!ONLINE) return;
+  try {
+    const rows = await api("/rest/v1/listings?select=id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone&order=created_at.desc&limit=500");
+    ITEMS = [...rows.map(fromRow), ...RACKETS.map(r => ({ ...r, photos: r.photos || [], seller: SHOP_SELLER, remote: false }))];
+    listingsState = "ok";
+  } catch (e) {
+    listingsState = "error";
+  }
+  basket = basket.filter(byId); saveBasket();
+  render(false);
+}
+
+/* ---------- pictures ---------- */
 const HEADS = {
   round:    "M100,22 C152,22 180,60 180,112 C180,166 146,202 100,204 C54,202 20,166 20,112 C20,60 48,22 100,22Z",
   teardrop: "M100,16 C156,16 182,52 182,98 C182,150 142,194 100,206 C58,194 18,150 18,98 C18,52 44,16 100,16Z",
@@ -244,20 +332,18 @@ const HEADS = {
 let svgSeq = 0;
 function racketSVG(r, view = "front") {
   const [frame, accent, light] = r.colors;
-  const head = HEADS[r.shape];
+  const head = HEADS[r.shape] || HEADS.teardrop;
   const uid = "c" + (svgSeq++);
+  const grip = x => [0,1,2,3,4,5].map(i => `<path d="M${x},${254+i*9} L${200-x},${259+i*9}" stroke="${light}" stroke-opacity=".35" stroke-width="2"/>`).join("");
   if (view === "side") {
     return `<svg viewBox="0 0 200 320" role="img" aria-label="${esc(r.name)}, side view">
       <path d="M93,14 C99,12 101,12 107,14 L109,200 L104,250 L96,250 L91,200Z" fill="${frame}"/>
       <rect x="95.5" y="14" width="9" height="186" fill="${accent}" opacity=".85"/>
-      <rect x="91" y="248" width="18" height="62" rx="5" fill="${frame}"/>
-      ${[0,1,2,3,4,5].map(i => `<path d="M91,${254+i*9} L109,${259+i*9}" stroke="${light}" stroke-opacity=".35" stroke-width="2"/>`).join("")}
-    </svg>`;
+      <rect x="91" y="248" width="18" height="62" rx="5" fill="${frame}"/>${grip(91)}</svg>`;
   }
   let holes = "";
   for (let y = 46; y < 196; y += 15) for (let x = 34; x < 170; x += 15) {
-    const ox = ((y - 46) / 15) % 2 ? 7 : 0;
-    holes += `<circle cx="${x + ox}" cy="${y}" r="3.6"/>`;
+    holes += `<circle cx="${x + (((y - 46) / 15) % 2 ? 7 : 0)}" cy="${y}" r="3.6"/>`;
   }
   const faceArt = view === "back"
     ? `<path d="M10,150 L100,90 L190,150 L190,175 L100,115 L10,175Z" fill="${accent}"/>
@@ -269,26 +355,26 @@ function racketSVG(r, view = "front") {
   return `<svg viewBox="${vb}" role="img" aria-label="${esc(r.name)}, ${view} view">
     <defs><clipPath id="${uid}"><path d="${head}"/></clipPath></defs>
     <path d="M80,190 L94,250 L106,250 L120,190 L112,190 L100,226 L88,190Z" fill="${frame}"/>
-    <g clip-path="url(#${uid})">
-      <rect width="200" height="220" fill="${frame}"/>
-      ${faceArt}
-      <g fill="${frame}" opacity=".9">${holes}</g>
-    </g>
+    <g clip-path="url(#${uid})"><rect width="200" height="220" fill="${frame}"/>${faceArt}<g fill="${frame}" opacity=".9">${holes}</g></g>
     <path d="${head}" fill="none" stroke="${frame}" stroke-width="9"/>
     <path d="${head}" fill="none" stroke="${accent}" stroke-width="2" opacity=".7"/>
-    <rect x="88" y="248" width="24" height="62" rx="6" fill="${frame}"/>
-    ${[0,1,2,3,4,5].map(i => `<path d="M88,${254+i*9} L112,${259+i*9}" stroke="${light}" stroke-opacity=".35" stroke-width="2"/>`).join("")}
-  </svg>`;
+    <rect x="88" y="248" width="24" height="62" rx="6" fill="${frame}"/>${grip(88)}</svg>`;
 }
 const VIEWS = [["front","Front"],["back","Back"],["side","Side"],["detail","Close-up"]];
-
-/* ---------- basket (kept in this browser only) ---------- */
-let basket = [];
-try { basket = JSON.parse(localStorage.getItem("bandeja-basket") || "[]").filter(byId); } catch (e) { basket = []; }
-function saveBasket() {
-  try { localStorage.setItem("bandeja-basket", JSON.stringify(basket)); } catch (e) {}
-  document.getElementById("count").textContent = basket.length;
+const cover = r => r.photos.length ? `<img src="${esc(r.photos[0])}" alt="${esc(r.name)}" loading="lazy">` : racketSVG(r);
+function galleryItems(r) {
+  return r.photos.length
+    ? r.photos.map((u, i) => ({ label: "Photo " + (i + 1), html: `<img src="${esc(u)}" alt="${esc(r.name)}, photo ${i + 1}">` }))
+    : VIEWS.map(([v, l]) => ({ label: l, html: racketSVG(r, v) }));
 }
+
+/* ---------- small helpers ---------- */
+function store(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; } }
+function put(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+let basket = store("bandeja-basket", []);
+let myListings = store("bandeja-my-listings", []);   // [{id, code, name}]
+function saveBasket() { put("bandeja-basket", basket); document.getElementById("count").textContent = basket.length; }
 function addToBasket(id) { if (!basket.includes(id)) basket.push(id); saveBasket(); toast("Added to basket"); }
 function removeFromBasket(id) { basket = basket.filter(x => x !== id); saveBasket(); }
 
@@ -296,137 +382,319 @@ let toastTimer;
 function toast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg; t.hidden = false;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 1800);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2200);
+}
+function copyText(txt, label) {
+  try { navigator.clipboard.writeText(txt).then(() => toast(label + " copied"), () => toast("Select the text to copy it")); }
+  catch (e) { toast("Select the text to copy it"); }
 }
 
 /* ---------- views ---------- */
 const app = document.getElementById("app");
 let filter = "all";
-let checkout = { delivery: "pickup", name: "", phone: "", address: "", note: "" };
+let checkout = { delivery: "pickup", name: "", phone: "", address: "" };
 let order = null;
 
 const chip = c => `<span class="chip ${c === "New" ? "new" : "used"}" title="${esc(CONDITION_INFO[c])}">${esc(c === "New" ? "New" : "Used · " + c)}</span>`;
 const ytIcon = `<svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect width="16" height="12" rx="3" fill="#ff0033"/><path d="M6.4 3.4v5.2L10.8 6Z" fill="#fff"/></svg>`;
+const sellerLine = r => `<div class="seller">Sold by <b>${esc(r.seller.name)}</b></div>`;
 
 function viewShop() {
-  const list = RACKETS.filter(r => filter === "all" || (filter === "new" ? r.condition === "New" : r.condition !== "New"));
+  const list = ITEMS.filter(r => filter === "all" || (filter === "new" ? r.condition === "New" : r.condition !== "New"));
+  const status = listingsState === "loading" ? `<p class="status">Loading rackets from other sellers…</p>`
+    : listingsState === "error" ? `<p class="error">Rackets from other sellers couldn't be loaded. Refresh the page to try again.</p>` : "";
   app.innerHTML = `
     <section class="intro">
       <div>
         <h1>Padel rackets</h1>
-        <p>New and second-hand rackets, each checked and graded. Tap a racket for more photos.</p>
+        <p>New and second-hand rackets from players around you. Tap a racket for more photos. ${ONLINE ? "Got one to sell? Add it in a minute." : ""}</p>
       </div>
       <div class="filters" role="group" aria-label="Filter by condition">
         ${[["all","All"],["new","New"],["used","Used"]].map(([k,l]) =>
           `<button class="filter" type="button" data-filter="${k}" aria-pressed="${filter === k}">${l}</button>`).join("")}
       </div>
     </section>
+    ${status}
     <section class="grid">
       ${list.map(r => `
         <article class="card">
           <a class="card-link" href="#r-${r.id}">
-            <div class="art">${racketSVG(r)}</div>
+            <div class="art">${cover(r)}</div>
             <div class="card-body">
               <h2 class="card-name">${esc(r.name)}</h2>
-              <div class="meta">${esc(r.shape[0].toUpperCase() + r.shape.slice(1))} · ${esc(r.weight)}</div>
+              <div class="meta">${[r.shapeKnown === false ? "" : cap(r.shape), r.weight].filter(Boolean).map(esc).join(" · ")}</div>
+              ${sellerLine(r)}
               <div class="row"><span class="price">${euro(r.price)}</span>${chip(r.condition)}</div>
             </div>
           </a>
           <div class="card-foot">
-            <a class="yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Watch review</a>
+            ${r.review ? `<a class="yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Watch review</a>` : `<span></span>`}
             ${basket.includes(r.id) ? `<span class="sold-tag">In basket</span>` : ""}
           </div>
         </article>`).join("")}
     </section>
-    <p class="notice">Sample stock shown. Replace it with your own rackets in the shop settings.</p>`;
+    <p class="notice">The shop's own rackets are sample stock. Replace them in the shop settings.</p>`;
   app.querySelectorAll("[data-filter]").forEach(b => b.onclick = () => { filter = b.dataset.filter; viewShop(); });
 }
 
 function viewRacket(r) {
   const inBasket = basket.includes(r.id);
+  const g = galleryItems(r);
+  const mine = myListings.find(m => m.id === r.uuid);
+  const specs = [
+    ["Condition", `${r.condition}. ${CONDITION_INFO[r.condition]}`],
+    ["Shape", r.shapeKnown === false ? "" : cap(r.shape)],
+    ["Weight", r.weight], ["Core", r.core], ["Face", r.face], ["Year", r.year],
+    ["Seller", r.seller.name]
+  ].filter(([, v]) => v);
   app.innerHTML = `
     <button class="back" type="button" id="back">← All rackets</button>
     <section class="detail">
       <div>
-        <div class="gallery-main" id="mainPic">${racketSVG(r, "front")}</div>
-        <div class="thumbs">
-          ${VIEWS.map(([v,l], i) => `<div><button class="thumb" type="button" data-view="${v}" aria-current="${i===0}" aria-label="Show ${l} photo">${racketSVG(r, v)}</button><div class="thumb-label">${l}</div></div>`).join("")}
-        </div>
+        <div class="gallery-main" id="mainPic">${g[0].html}</div>
+        ${g.length > 1 ? `<div class="thumbs">
+          ${g.map((it, i) => `<div><button class="thumb" type="button" data-i="${i}" aria-current="${i===0}" aria-label="Show ${esc(it.label)}">${it.html}</button><div class="thumb-label">${esc(it.label)}</div></div>`).join("")}
+        </div>` : ""}
       </div>
       <div>
         ${chip(r.condition)}
         <h1>${esc(r.name)}</h1>
         <div class="price">${euro(r.price)}</div>
-        <dl class="specs">
-          <dt>Condition</dt><dd>${esc(r.condition)}. ${esc(CONDITION_INFO[r.condition])}</dd>
-          <dt>Shape</dt><dd>${esc(r.shape[0].toUpperCase() + r.shape.slice(1))}</dd>
-          <dt>Weight</dt><dd>${esc(r.weight)}</dd>
-          <dt>Core</dt><dd>${esc(r.core)}</dd>
-          <dt>Face</dt><dd>${esc(r.face)}</dd>
-          <dt>Year</dt><dd>${esc(r.year)}</dd>
-        </dl>
-        <p class="notes">${esc(r.notes)}</p>
+        <dl class="specs">${specs.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+        ${r.notes ? `<p class="notes">${esc(r.notes)}</p>` : ""}
         <div class="actions">
           <button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "In your basket" : "Add to basket"}</button>
           ${inBasket ? `<button class="btn btn-dark" type="button" id="goBasket">Go to basket</button>` : ""}
-          <a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Watch YouTube review</a>
+          ${r.review ? `<a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Watch YouTube review</a>` : ""}
         </div>
+        ${r.remote ? `
+        <details class="owner" ${mine ? "open" : ""}>
+          <summary>Is this your listing? Remove it</summary>
+          <p class="hint">Enter the code you got when you listed this racket, for example after it sells.</p>
+          <form class="inline-form" id="removeForm">
+            <input id="removeCode" placeholder="Listing code" autocomplete="off" value="${esc(mine ? mine.code : "")}" aria-label="Listing code">
+            <button class="btn btn-dark" type="submit">Remove listing</button>
+          </form>
+          <p class="error" id="removeError" hidden></p>
+        </details>` : ""}
       </div>
     </section>`;
   document.getElementById("back").onclick = () => go("shop");
-  const add = document.getElementById("add");
-  if (!inBasket) add.onclick = () => { addToBasket(r.id); viewRacket(r); };
+  if (!inBasket) document.getElementById("add").onclick = () => { addToBasket(r.id); viewRacket(r); };
   const gb = document.getElementById("goBasket"); if (gb) gb.onclick = () => go("basket");
   app.querySelectorAll(".thumb").forEach(t => t.onclick = () => {
-    document.getElementById("mainPic").innerHTML = racketSVG(r, t.dataset.view);
+    document.getElementById("mainPic").innerHTML = g[+t.dataset.i].html;
     app.querySelectorAll(".thumb").forEach(x => x.setAttribute("aria-current", x === t));
+  });
+  const rf = document.getElementById("removeForm");
+  if (rf) rf.onsubmit = async e => {
+    e.preventDefault();
+    const err = document.getElementById("removeError");
+    const code = document.getElementById("removeCode").value.trim();
+    if (!code) { err.textContent = "Enter your listing code."; err.hidden = false; return; }
+    try {
+      const ok = await api("/rest/v1/rpc/delete_listing", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p_id: r.uuid, p_code: code }) });
+      if (!ok) { err.textContent = "That code doesn't match this listing. Check it and try again."; err.hidden = false; return; }
+      myListings = myListings.filter(m => m.id !== r.uuid); put("bandeja-my-listings", myListings);
+      toast("Listing removed"); go("shop"); loadListings();
+    } catch (ex) { err.textContent = "The listing couldn't be removed right now. Check your connection and try again."; err.hidden = false; }
+  };
+}
+
+/* ----- selling ----- */
+let sellResult = null;
+function viewSell() {
+  if (!ONLINE) {
+    app.innerHTML = `<h1 class="page-title">Sell a racket</h1>
+      <div class="panel"><p>Selling isn't switched on yet. The shop owner needs to add the database details in the shop settings.</p></div>`;
+    return;
+  }
+  if (sellResult) {
+    const r = sellResult;
+    app.innerHTML = `<h1 class="page-title">Your racket is listed</h1>
+      <div class="panel" style="max-width:640px">
+        <p><b>${esc(r.name)}</b> is now on the front page.</p>
+        <p>Your listing code is:</p>
+        <p><span class="code" id="theCode">${esc(r.code)}</span> <button class="btn btn-ghost" type="button" id="copyCode">Copy</button></p>
+        <p class="hint">Save this code. You need it to remove the listing once the racket sells. This browser remembers it too.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#r-u${esc(r.id)}" style="text-decoration:none">See your listing</a>
+          <button class="btn btn-ghost" type="button" id="another">List another racket</button>
+        </div>
+      </div>`;
+    document.getElementById("copyCode").onclick = () => copyText(r.code, "Code");
+    document.getElementById("another").onclick = () => { sellResult = null; viewSell(); };
+    return;
+  }
+  app.innerHTML = `
+    <button class="back" type="button" id="back">← All rackets</button>
+    <h1 class="page-title">Sell a racket</h1>
+    <div class="sell-layout">
+      <form class="panel" id="sellForm" novalidate>
+        <div class="field"><label for="s-name">Racket name</label><input id="s-name" maxlength="80" placeholder="Brand, model and year" required></div>
+        <div class="two">
+          <div class="field"><label for="s-cond">Condition</label>
+            <select id="s-cond">${CONDITIONS.map(c => `<option value="${c}">${c}</option>`).join("")}</select>
+            <span class="hint" id="s-cond-hint">${CONDITION_INFO.New}</span></div>
+          <div class="field"><label for="s-price">Price (€)</label><input id="s-price" inputmode="decimal" placeholder="120" required></div>
+        </div>
+        <div class="two">
+          <div class="field"><label for="s-shape">Shape</label>
+            <select id="s-shape"><option value="">Not sure</option><option value="round">Round</option><option value="teardrop">Teardrop</option><option value="diamond">Diamond</option></select></div>
+          <div class="field"><label for="s-weight">Weight</label><input id="s-weight" maxlength="20" placeholder="365 g"></div>
+        </div>
+        <div class="field"><label for="s-photos">Photos (up to 4)</label><input id="s-photos" type="file" accept="image/*" multiple>
+          <div class="previews" id="previews"></div><span class="hint">Front, back and any marks or damage.</span></div>
+        <div class="field"><label for="s-notes">Description</label><textarea id="s-notes" rows="4" maxlength="600" placeholder="How much it's been used, any marks, what's included"></textarea></div>
+        <div class="field"><label for="s-review">YouTube review link (optional)</label><input id="s-review" inputmode="url" placeholder="https://www.youtube.com/watch?v=…"></div>
+        <div class="two">
+          <div class="field"><label for="s-seller">Your name</label><input id="s-seller" maxlength="40" autocomplete="given-name" required></div>
+          <div class="field"><label for="s-phone">Your MB WAY number</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" required></div>
+        </div>
+        <div class="hp" aria-hidden="true"><label for="s-web">Website</label><input id="s-web" tabindex="-1" autocomplete="off"></div>
+        <label class="check"><input type="checkbox" id="s-consent"> <span>I understand my name and phone number will be shown on the listing so buyers can pay me by MB WAY and message me on WhatsApp.</span></label>
+        <p class="error" id="sellError" hidden></p>
+        <button class="btn btn-primary" type="submit" id="sellSubmit" style="width:100%;margin-top:14px">List my racket</button>
+      </form>
+      <div class="panel">
+        <div style="font-weight:700;margin-bottom:6px">How selling works</div>
+        <ol class="steps">
+          <li>Your racket goes on the front page straight away.</li>
+          <li>Buyers pay you directly with MB WAY and message you on WhatsApp.</li>
+          <li>You arrange pick-up or shipping with the buyer.</li>
+          <li>Remove the listing with your code once it sells.</li>
+        </ol>
+        ${myListings.length ? `<div style="font-weight:700;margin:18px 0 4px">Your listings on this device</div>
+          <div class="mine">${myListings.map(m => `<div class="mine-row"><a href="#r-u${esc(m.id)}">${esc(m.name)}</a><span class="meta">Code ${esc(m.code)}</span></div>`).join("")}</div>` : ""}
+      </div>
+    </div>`;
+  document.getElementById("back").onclick = () => go("shop");
+  const cond = document.getElementById("s-cond");
+  cond.onchange = () => document.getElementById("s-cond-hint").textContent = CONDITION_INFO[cond.value];
+  let files = [];
+  const photos = document.getElementById("s-photos");
+  photos.onchange = () => {
+    files = [...photos.files].filter(f => f.type.startsWith("image/")).slice(0, 4);
+    document.getElementById("previews").innerHTML = files.map(f => `<img src="${URL.createObjectURL(f)}" alt="">`).join("");
+    if (photos.files.length > 4) toast("Only the first 4 photos will be used");
+  };
+  document.getElementById("sellForm").onsubmit = async e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim();
+    const err = document.getElementById("sellError");
+    const fail = m => { err.textContent = m; err.hidden = false; };
+    err.hidden = true;
+    if (v("s-web")) return;
+    const price = parseFloat(v("s-price").replace(",", "."));
+    const phone = v("s-phone").replace(/\D/g, "").replace(/^351/, "");
+    const review = v("s-review");
+    if (v("s-name").length < 3) return fail("Enter the racket's name, for example brand and model.");
+    if (!(price > 0 && price < 5000)) return fail("Enter a price in euros, for example 120.");
+    if (review && !safeYouTube(review)) return fail("The review link must be a YouTube link starting with https://.");
+    if (!files.length) return fail("Add at least one photo of the racket.");
+    if (v("s-seller").length < 2) return fail("Enter your name.");
+    if (!/^9[1236]\d{7}$/.test(phone)) return fail("Enter your MB WAY number: 9 digits, starting with 91, 92, 93 or 96.");
+    if (!document.getElementById("s-consent").checked) return fail("Tick the box to agree to showing your name and number.");
+    const btn = document.getElementById("sellSubmit");
+    btn.disabled = true;
+    try {
+      const names = [];
+      for (let i = 0; i < files.length; i++) {
+        btn.textContent = `Uploading photo ${i + 1} of ${files.length}…`;
+        const blob = await shrink(files[i]);
+        const name = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + i + "-" + Math.random().toString(16).slice(2)) + ".jpg";
+        await api("/storage/v1/object/photos/" + name, { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: blob });
+        names.push(name);
+      }
+      btn.textContent = "Publishing…";
+      const res = await api("/rest/v1/rpc/create_listing", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
+          p_shape: document.getElementById("s-shape").value, p_weight: v("s-weight"), p_notes: v("s-notes"),
+          p_review: review, p_photos: names, p_seller_name: v("s-seller"), p_seller_phone: phone })
+      });
+      sellResult = { id: res.id, code: res.manage_code, name: v("s-name") };
+      myListings.push(sellResult); put("bandeja-my-listings", myListings);
+      viewSell(); window.scrollTo(0, 0);
+      loadListings();
+    } catch (ex) {
+      btn.disabled = false; btn.textContent = "List my racket";
+      fail("Your racket couldn't be listed (" + ex.message + "). Check your connection and try again.");
+    }
+  };
+}
+
+function shrink(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1400, s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(b => b ? resolve(b) : reject(new Error("photo could not be read")), "image/jpeg", 0.82);
+    };
+    img.onerror = () => reject(new Error("photo could not be read"));
+    img.src = URL.createObjectURL(file);
   });
 }
 
-function totals() {
-  const sub = basket.reduce((s, id) => s + byId(id).price, 0);
-  const ship = (SHOP.shipping.find(s => s.id === checkout.delivery) || SHOP.shipping[0]).price;
-  return { sub, ship, total: sub + ship };
+/* ----- basket and checkout ----- */
+function groups() {
+  const map = new Map();
+  basket.map(byId).filter(Boolean).forEach(r => {
+    if (!map.has(r.seller.key)) map.set(r.seller.key, { seller: r.seller, items: [] });
+    map.get(r.seller.key).items.push(r);
+  });
+  return [...map.values()].map(g => {
+    const sub = g.items.reduce((s, r) => s + r.price, 0);
+    const ship = g.seller.shop ? (SHOP.shipping.find(s => s.id === checkout.delivery) || SHOP.shipping[0]).price : 0;
+    return { ...g, sub, ship, total: sub + ship };
+  });
 }
 
 function viewBasket() {
-  if (!basket.length) {
+  const items = basket.map(byId).filter(Boolean);
+  if (!items.length) {
     app.innerHTML = `<h1 class="page-title">Basket</h1>
-      <div class="panel empty"><p>Your basket is empty.</p><button class="btn btn-primary" type="button" id="browse">Browse rackets</button></div>`;
+      <div class="panel empty"><p>${listingsState === "loading" && basket.length ? "Loading your basket…" : "Your basket is empty."}</p><button class="btn btn-primary" type="button" id="browse">Browse rackets</button></div>`;
     document.getElementById("browse").onclick = () => go("shop");
     return;
   }
-  const t = totals();
+  const gs = groups();
+  const hasShop = gs.some(g => g.seller.shop);
+  const total = gs.reduce((s, g) => s + g.total, 0);
   app.innerHTML = `
     <button class="back" type="button" id="back">← Keep shopping</button>
     <h1 class="page-title">Basket</h1>
     <div class="basket-layout">
       <div class="panel">
-        ${basket.map(id => { const r = byId(id); return `
+        ${items.map(r => `
           <div class="line">
-            <a class="mini" href="#r-${r.id}" aria-label="${esc(r.name)}">${racketSVG(r)}</a>
+            <a class="mini" href="#r-${r.id}" aria-label="${esc(r.name)}">${cover(r)}</a>
             <div style="min-width:0">
               <div class="line-name">${esc(r.name)}</div>
-              <div class="meta">${esc(r.condition)} · ${esc(r.weight)}</div>
+              <div class="meta">${esc(r.condition)} · sold by ${esc(r.seller.name)}</div>
               <button class="remove" type="button" data-remove="${r.id}">Remove</button>
             </div>
             <div class="price">${euro(r.price)}</div>
-          </div>`; }).join("")}
+          </div>`).join("")}
       </div>
       <div class="panel">
         <form id="checkoutForm" novalidate>
-          <div class="field">
-            <span id="dlabel" style="font-weight:600;font-size:14px">Delivery</span>
+          ${hasShop ? `<div class="field">
+            <span id="dlabel" style="font-weight:600;font-size:14px">Delivery for ${esc(SHOP.name)} rackets</span>
             <div class="radio-group" role="radiogroup" aria-labelledby="dlabel">
               ${SHOP.shipping.map(s => `<label class="radio"><input type="radio" name="delivery" id="del-${s.id}" value="${s.id}" ${checkout.delivery === s.id ? "checked" : ""}> <span style="flex:1">${esc(s.label)}</span> <span class="meta">${s.price ? euro(s.price) : "Free"}</span></label>`).join("")}
             </div>
-          </div>
+          </div>` : ""}
+          ${gs.some(g => !g.seller.shop) ? `<p class="hint">For rackets from other sellers, you arrange pick-up or shipping with the seller.</p>` : ""}
           <div class="field"><label for="cname">Your name</label><input id="cname" autocomplete="name" value="${esc(checkout.name)}" required></div>
-          <div class="field"><label for="cphone">MB WAY phone number</label><input id="cphone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(checkout.phone)}" required><span class="hint">The number linked to your MB WAY app.</span></div>
-          <div class="field" id="addrField" ${checkout.delivery === "pickup" ? "hidden" : ""}><label for="caddr">Shipping address</label><textarea id="caddr" rows="3" autocomplete="street-address">${esc(checkout.address)}</textarea></div>
-          <div class="sumrow"><span>Rackets</span><span>${euro(t.sub)}</span></div>
-          <div class="sumrow"><span>Delivery</span><span>${t.ship ? euro(t.ship) : "Free"}</span></div>
-          <div class="sumrow total"><span>Total</span><span class="price">${euro(t.total)}</span></div>
+          <div class="field"><label for="cphone">Your MB WAY phone number</label><input id="cphone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(checkout.phone)}" required><span class="hint">So the seller can match your payment.</span></div>
+          <div class="field" id="addrField" ${hasShop && checkout.delivery !== "pickup" ? "" : "hidden"}><label for="caddr">Shipping address</label><textarea id="caddr" rows="3" autocomplete="street-address">${esc(checkout.address)}</textarea></div>
+          ${gs.map(g => `<div class="sumrow"><span>${esc(g.seller.name)}${g.ship ? " (incl. delivery)" : ""}</span><span>${euro(g.total)}</span></div>`).join("")}
+          <div class="sumrow total"><span>Total</span><span class="price">${euro(total)}</span></div>
+          ${gs.length > 1 ? `<p class="hint">You'll pay each seller separately.</p>` : ""}
           <div class="mbway" style="margin-top:14px"><span class="mbway-badge">MB WAY</span><span class="meta">Payment by MB WAY only</span></div>
           <p class="error" id="formError" hidden></p>
           <button class="btn btn-primary" type="submit" style="width:100%">Place order and pay with MB WAY</button>
@@ -444,96 +712,89 @@ function viewBasket() {
     let msg = "";
     if (!checkout.name.trim()) msg = "Enter your name.";
     else if (!/^9[1236]\d{7}$/.test(digits)) msg = "Enter a Portuguese mobile number with 9 digits, starting with 91, 92, 93 or 96.";
-    else if (checkout.delivery !== "pickup" && !checkout.address.trim()) msg = "Enter a shipping address, or choose pick up.";
+    else if (hasShop && checkout.delivery !== "pickup" && !checkout.address.trim()) msg = "Enter a shipping address, or choose pick up.";
     if (msg) { err.textContent = msg; err.hidden = false; return; }
-    placeOrder(digits);
+    placeOrder(digits, hasShop);
   };
 }
 
 function readForm() {
   const g = id => document.getElementById(id);
   const d = document.querySelector('input[name="delivery"]:checked');
-  checkout = { delivery: d ? d.value : "pickup", name: g("cname").value, phone: g("cphone").value,
-               address: g("caddr") ? g("caddr").value : "", note: "" };
+  checkout = { delivery: d ? d.value : checkout.delivery, name: g("cname").value, phone: g("cphone").value,
+               address: g("caddr") ? g("caddr").value : "" };
 }
 
 function placeOrder(phoneDigits) {
-  const t = totals();
   const ref = "BJ-" + Math.floor(1000 + Math.random() * 9000);
-  const items = basket.map(byId);
   const delivery = SHOP.shipping.find(s => s.id === checkout.delivery);
-  const text = [
+  order = { ref, groups: groups().map(g => ({ ...g, text: [
     `New order ${ref}`,
-    ...items.map(r => `- ${r.name} (${r.condition}) ${euro(r.price)}`),
-    `Delivery: ${delivery.label}${delivery.price ? " " + euro(delivery.price) : ""}`,
-    `Total: ${euro(t.total)}`,
+    ...g.items.map(r => `- ${r.name} (${r.condition}) ${euro(r.price)}`),
+    g.seller.shop ? `Delivery: ${delivery.label}${delivery.price ? " " + euro(delivery.price) : ""}` : "Delivery: to arrange with you",
+    `Total: ${euro(g.total)}`,
     `Name: ${checkout.name.trim()}`,
     `MB WAY phone: ${phoneDigits}`,
-    checkout.delivery !== "pickup" ? `Address: ${checkout.address.trim()}` : ""
-  ].filter(Boolean).join("\n");
-  order = { ref, total: t.total, text, items };
+    g.seller.shop && checkout.delivery !== "pickup" ? `Address: ${checkout.address.trim()}` : ""
+  ].filter(Boolean).join("\n") })) };
   basket = []; saveBasket();
   go("order");
 }
 
 function viewOrder() {
   if (!order) return go("shop");
-  const wa = `https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(order.text)}`;
+  const many = order.groups.length > 1;
   app.innerHTML = `
     <h1 class="page-title">Order ${esc(order.ref)}</h1>
+    ${many ? `<p class="status" style="margin-top:-8px">Your basket has rackets from ${order.groups.length} sellers. Pay each one separately.</p>` : ""}
     <div class="basket-layout">
       <div>
+        ${order.groups.map((g, i) => `
         <div class="pay-box">
-          <div class="mbway-badge" style="display:inline-block;margin-bottom:10px">MB WAY</div>
-          <div>Send this amount with MB WAY:</div>
-          <div class="big">${euro(order.total)}</div>
+          <span class="mbway-badge" style="display:inline-block;margin-bottom:10px">MB WAY</span>
+          <h2>Pay ${esc(g.seller.name)}</h2>
+          <div>${esc(g.items.map(r => r.name).join(", "))}</div>
+          <div class="big">${euro(g.total)}</div>
           <div class="pay-grid">
-            <div><div class="label">To number</div><div class="val" id="payNum">${esc(SHOP.mbwayNumber)}</div><button class="copy" type="button" data-copy="${esc(SHOP.mbwayNumber.replace(/\s/g,""))}">Copy number</button></div>
-            <div><div class="label">Message / reference</div><div class="val">${esc(order.ref)}</div><button class="copy" type="button" data-copy="${esc(order.ref)}">Copy reference</button></div>
+            <div><div class="label">To number</div><div class="val">${esc(g.seller.mbway)}</div><button class="copy" type="button" data-copy="${esc(g.seller.mbway.replace(/\s/g,""))}" data-label="Number">Copy number</button></div>
+            <div><div class="label">Message / reference</div><div class="val">${esc(order.ref)}</div><button class="copy" type="button" data-copy="${esc(order.ref)}" data-label="Reference">Copy reference</button></div>
           </div>
-        </div>
-        <div class="panel">
-          <ol class="steps">
-            <li>Open the MB WAY app and choose <b>Send money</b>.</li>
-            <li>Send <b>${euro(order.total)}</b> to <b>${esc(SHOP.mbwayNumber)}</b> and write <b>${esc(order.ref)}</b> in the message.</li>
-            <li>Send us your order details below so we can match your payment.</li>
-            <li>We confirm by message once the payment arrives, then arrange pick-up or shipping.</li>
-          </ol>
-          <div class="actions">
-            <a class="btn btn-primary" href="${wa}" target="_blank" rel="noopener">Send order on WhatsApp</a>
-            <button class="btn btn-ghost" type="button" id="copyOrder">Copy order details</button>
-          </div>
-        </div>
+          <a class="btn btn-primary" href="https://wa.me/${esc(g.seller.whatsapp)}?text=${encodeURIComponent(g.text)}" target="_blank" rel="noopener">Send order to ${esc(g.seller.name)} on WhatsApp</a>
+          <button class="copy" type="button" data-copy="${esc(g.text)}" data-label="Order details" style="margin-left:8px">Copy order details</button>
+        </div>`).join("")}
       </div>
       <div class="panel">
-        <div style="font-weight:700;margin-bottom:8px">Your order</div>
-        <pre style="white-space:pre-wrap;margin:0;font:13px/1.6 var(--font-mono)" id="orderText">${esc(order.text)}</pre>
+        <div style="font-weight:700;margin-bottom:8px">What happens next</div>
+        <ol class="steps">
+          <li>Open the MB WAY app and choose <b>Send money</b>.</li>
+          <li>Send each amount to the number shown, with <b>${esc(order.ref)}</b> in the message.</li>
+          <li>Send your order on WhatsApp so the seller can match your payment.</li>
+          <li>The seller confirms once the payment arrives, then you arrange pick-up or shipping.</li>
+        </ol>
       </div>
     </div>`;
-  const copy = (txt, label) => {
-    const done = () => toast(label + " copied");
-    try { navigator.clipboard.writeText(txt).then(done, () => toast("Select the text to copy it")); }
-    catch (e) { toast("Select the text to copy it"); }
-  };
-  app.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copy(b.dataset.copy, b.textContent.replace("Copy ", "").replace(/^./, c => c.toUpperCase())));
-  document.getElementById("copyOrder").onclick = () => copy(order.text, "Order details");
+  app.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy, b.dataset.label));
 }
 
 /* ---------- routing ---------- */
-function go(where) { location.hash = where; render(); }
-function render() {
+function go(where) { if (location.hash === "#" + where) render(); else location.hash = where; }
+function render(scroll = true) {
   const h = location.hash.slice(1);
-  window.scrollTo(0, 0);
+  if (scroll) window.scrollTo(0, 0);
   if (h.startsWith("r-") && byId(h.slice(2))) viewRacket(byId(h.slice(2)));
+  else if (h.startsWith("r-u") && listingsState === "loading") app.innerHTML = `<p class="status">Loading racket…</p>`;
   else if (h === "basket") viewBasket();
   else if (h === "order") viewOrder();
+  else if (h === "sell") viewSell();
   else viewShop();
 }
-window.addEventListener("hashchange", render);
+window.addEventListener("hashchange", () => render());
 document.getElementById("basketBtn").onclick = () => go("basket");
-document.getElementById("footContact").textContent = "MB WAY: " + SHOP.mbwayNumber;
-saveBasket();
+document.getElementById("sellBtn").onclick = () => { sellResult = null; go("sell"); };
+document.getElementById("footContact").textContent = "Shop MB WAY: " + SHOP.mbwayNumber;
+document.getElementById("count").textContent = basket.length;
 render();
+loadListings();
 </script>
 </body>
 </html>

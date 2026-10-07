@@ -74,7 +74,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
 .card-name { font-weight: 700; font-size: 16px; line-height: 1.3; margin: 0; }
 .meta { color: var(--muted); font-size: 13px; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 6px; }
-.price { font: 500 18px var(--font-mono); font-variant-numeric: tabular-nums; }
+.price { font: 500 18px var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 .chip.new { background: var(--chip-new); color: var(--good); }
 .chip.used { background: var(--chip-used); color: var(--warn); }
@@ -183,6 +183,42 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 .pay-box h2 { font: 800 22px var(--font-display); text-transform: uppercase; margin: 0 0 8px; }
 .pay-box .btn-primary { margin-top: 16px; display: inline-block; text-decoration: none; }
 .status { color: var(--muted); font-size: 14px; }
+.stars { color: #e0a100; letter-spacing: 1px; white-space: nowrap; }
+.stars-off { color: var(--line); }
+.mini-star { color: #b98400; font-weight: 600; }
+:root[data-theme="dark"] .mini-star { color: #e8b84a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mini-star { color: #e8b84a; } }
+.seller-link { font-size: 13px; font-weight: 600; color: var(--fg); text-decoration: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seller-link:hover { text-decoration: underline; }
+.avatar { flex: none; width: 64px; height: 64px; border-radius: 50%; background: var(--court); color: var(--court-ink); display: grid; place-items: center; font: 800 28px var(--font-display); }
+.avatar.sm { width: 40px; height: 40px; font-size: 18px; }
+.seller-box { display: flex; align-items: center; gap: 12px; margin-top: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--fg); text-decoration: none; }
+a.seller-box:hover { border-color: var(--court); }
+.seller-box .chev { margin-left: auto; font-size: 24px; color: var(--muted); }
+.sold-banner { display: inline-block; background: var(--fg); color: var(--bg); font-weight: 700; border-radius: 8px; padding: 4px 10px; margin: 12px 0 0; }
+.profile-head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 8px; }
+.profile-head h1 { font: 800 clamp(30px, 5vw, 42px)/1 var(--font-display); text-transform: uppercase; margin: 0 0 4px; overflow-wrap: anywhere; }
+.profile-head .btn { margin-left: auto; }
+.profile-stats { margin-top: 6px; }
+.section-title { font: 800 24px var(--font-display); text-transform: uppercase; margin: 32px 0 12px; display: flex; gap: 10px; align-items: baseline; }
+.reviews { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.review { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; }
+.review p { margin: 0; }
+.review-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.panel-title { font-weight: 700; margin-bottom: 6px; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.mine-row { flex-wrap: wrap; }
+.sold-form, .review-form { display: grid; gap: 8px; padding: 12px 0 16px; border-bottom: 1px solid var(--line); }
+.sold-form label, .field-label { font-weight: 600; font-size: 14px; }
+.at-input { display: flex; align-items: center; border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding-left: 12px; }
+.at-input span { color: var(--muted); font-weight: 600; }
+.at-input input { border: 0 !important; background: transparent !important; padding-left: 4px !important; flex: 1; min-width: 0; }
+.at-input:focus-within { border-color: var(--court); }
+.sold-form .inline-form { margin-top: 0; }
+.star-pick { display: flex; gap: 4px; }
+.star-pick button { background: none; border: 0; font-size: 30px; line-height: 1; color: var(--line); cursor: pointer; padding: 2px; }
+.star-pick button.on { color: #e0a100; }
+.review-form textarea { border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; width: 100%; }
 .topbar-inner, .top-actions { flex-wrap: wrap; }
 .owner-box { margin-top: 24px; padding: 14px 16px; border: 1.5px dashed var(--line); border-radius: 12px; }
 .owner-box .hint { margin: 4px 0 0; }
@@ -305,7 +341,7 @@ const safeYouTube = u => /^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//.tes
 const SHOP_SELLER = { key: "shop", name: SHOP.name, mbway: SHOP.mbwayNumber, whatsapp: SHOP.whatsapp, shop: true };
 let ITEMS = RACKETS.map(r => ({ ...r, photos: r.photos || [], seller: SHOP_SELLER, remote: false }));
 let listingsState = ONLINE ? "loading" : "off";
-const byId = id => ITEMS.find(r => r.id === id);
+const byId = id => ITEMS.find(r => r.id === id) || ALL.find(r => r.id === id);
 
 /* ---------- database and login ---------- */
 const sb = ONLINE && window.supabase
@@ -315,33 +351,75 @@ let user = null;
 const PHOTO_RE = /^([0-9a-f-]{36}\/)?[a-z0-9-]+\.jpg$/;   // older listings have photos without a folder
 const photoUrl = p => `${SUPABASE.url}/storage/v1/object/public/photos/${p.split("/").map(encodeURIComponent).join("/")}`;
 
+let PROFILES = {};        // id -> { id, username, full_name, created_at }
+let REVIEWS = [];         // { id, listing_id, seller_id, buyer_id, rating, comment, created_at }
+let ALL = [];             // every listing from the database, sold ones included
+let profilesState = ONLINE ? "loading" : "off";
+const myProfile = () => (user && PROFILES[user.id]) || null;
+const profileByName = u => Object.values(PROFILES).find(p => p.username === u) || null;
+const displayName = p => p ? (p.full_name || "@" + p.username) : "";
+
 function fromRow(row) {
   const pal = PALETTES[parseInt(row.id.slice(0, 2), 16) % PALETTES.length];
   const paths = (row.photos || []).filter(p => PHOTO_RE.test(p));
+  const prof = PROFILES[row.user_id];
   return {
     id: "u" + row.id, uuid: row.id, remote: true, userId: row.user_id,
+    soldAt: row.sold_at || null, buyerId: row.buyer_id || null, createdAt: row.created_at,
     name: row.name, condition: row.condition, price: Number(row.price),
     shape: row.shape || "teardrop", shapeKnown: !!row.shape, weight: row.weight || "", notes: row.notes || "",
     review: safeYouTube(row.review), colors: pal,
     photoPaths: paths, photos: paths.map(photoUrl),
-    seller: { key: "s:" + row.seller_phone, name: row.seller_name, mbway: fmtPhone(row.seller_phone), whatsapp: "351" + row.seller_phone }
+    seller: { key: "s:" + (row.user_id || row.seller_phone), name: prof ? displayName(prof) : row.seller_name,
+              username: prof ? prof.username : "", mbway: fmtPhone(row.seller_phone), whatsapp: "351" + row.seller_phone }
   };
 }
 const isMine = r => !!(user && r.remote && r.userId === user.id);
+const shopItems = () => RACKETS.map(r => ({ ...r, photos: r.photos || [], seller: SHOP_SELLER, remote: false }));
+
+function sellerStats(userId) {
+  const rs = REVIEWS.filter(r => r.seller_id === userId);
+  const avg = rs.length ? rs.reduce((s, r) => s + r.rating, 0) / rs.length : 0;
+  return { count: rs.length, avg, sold: ALL.filter(l => l.userId === userId && l.soldAt).length };
+}
+const stars = (n, size = "") => {
+  const full = Math.round(n);
+  return `<span class="stars ${size}" role="img" aria-label="${n.toFixed(1).replace(".", ",")} de 5 estrelas">${"★".repeat(full)}<span class="stars-off">${"★".repeat(5 - full)}</span></span>`;
+};
+const ratingLine = userId => {
+  const s = sellerStats(userId);
+  return s.count ? `${stars(s.avg)} <span class="meta">${s.avg.toFixed(1).replace(".", ",")} · ${s.count} ${s.count === 1 ? "avaliação" : "avaliações"}</span>`
+                 : `<span class="meta">Ainda sem avaliações</span>`;
+};
+const fmtDate = d => new Date(d).toLocaleDateString("pt-PT", { day: "numeric", month: "long", year: "numeric" });
 
 async function loadListings() {
-  if (!sb) { listingsState = ONLINE ? "error" : "off"; render(false); return; }
+  if (!sb) { listingsState = ONLINE ? "error" : "off"; profilesState = listingsState; render(false); return; }
   try {
-    const { data: rows, error } = await sb.from("listings")
-      .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id")
-      .order("created_at", { ascending: false }).limit(500);
-    if (error) throw error;
-    ITEMS = [...rows.map(fromRow), ...RACKETS.map(r => ({ ...r, photos: r.photos || [], seller: SHOP_SELLER, remote: false }))];
+    const [pr, rv] = await Promise.all([
+      sb.from("profiles").select("id,username,full_name,created_at").limit(5000),
+      sb.from("reviews").select("id,listing_id,seller_id,buyer_id,rating,comment,created_at").order("created_at", { ascending: false }).limit(5000)
+    ]);
+    PROFILES = {}; (pr.data || []).forEach(p => PROFILES[p.id] = p);
+    REVIEWS = rv.data || [];
+    profilesState = pr.error ? "error" : "ok";
+    let res = await sb.from("listings")
+      .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id,sold_at,buyer_id")
+      .order("created_at", { ascending: false }).limit(1000);
+    if (res.error) {   // database not upgraded yet: fall back to the older columns
+      res = await sb.from("listings")
+        .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id")
+        .order("created_at", { ascending: false }).limit(1000);
+    }
+    if (res.error) throw res.error;
+    ALL = res.data.map(fromRow);
+    ITEMS = [...ALL.filter(r => !r.soldAt), ...shopItems()];
     listingsState = "ok";
   } catch (e) {
     listingsState = "error";
+    if (profilesState === "loading") profilesState = "error";
   }
-  basket = basket.filter(byId); saveBasket();
+  basket = basket.filter(id => { const r = byId(id); return r && !r.soldAt; }); saveBasket();
   render(false);
 }
 
@@ -418,7 +496,6 @@ let order = null;
 
 const chip = c => `<span class="chip ${c === "New" ? "new" : "used"}" title="${esc(CONDITION_INFO[c])}">${esc(c === "New" ? "Nova" : "Usada · " + COND_PT[c])}</span>`;
 const ytIcon = `<svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect width="16" height="12" rx="3" fill="#ff0033"/><path d="M6.4 3.4v5.2L10.8 6Z" fill="#fff"/></svg>`;
-const sellerLine = r => `<div class="seller">Vendida por <b>${esc(r.seller.name)}</b></div>`;
 
 function viewShop() {
   const list = ITEMS.filter(r => filter === "all" || (filter === "new" ? r.condition === "New" : r.condition !== "New"));
@@ -437,22 +514,7 @@ function viewShop() {
     </section>
     ${status}
     <section class="grid">
-      ${list.map(r => `
-        <article class="card">
-          <a class="card-link" href="#r-${r.id}">
-            <div class="art">${cover(r)}</div>
-            <div class="card-body">
-              <h2 class="card-name">${esc(r.name)}</h2>
-              <div class="meta">${[r.shapeKnown === false ? "" : shapePT(r.shape), r.weight].filter(Boolean).map(esc).join(" · ")}</div>
-              ${sellerLine(r)}
-              <div class="row"><span class="price">${euro(r.price)}</span>${chip(r.condition)}</div>
-            </div>
-          </a>
-          <div class="card-foot">
-            ${r.review ? `<a class="yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Ver review</a>` : `<span></span>`}
-            ${basket.includes(r.id) ? `<span class="sold-tag">No cesto</span>` : ""}
-          </div>
-        </article>`).join("")}
+      ${list.map(card).join("")}
     </section>
     <p class="notice">As raquetes da loja são exemplos. Substitua-as nas definições da loja.</p>`;
   app.querySelectorAll("[data-filter]").forEach(b => b.onclick = () => { filter = b.dataset.filter; viewShop(); });
@@ -465,9 +527,12 @@ function viewRacket(r) {
   const specs = [
     ["Estado", `${COND_PT[r.condition]}. ${CONDITION_INFO[r.condition]}`],
     ["Formato", r.shapeKnown === false ? "" : shapePT(r.shape)],
-    ["Peso", r.weight], ["Núcleo", r.core], ["Face", r.face], ["Ano", r.year],
-    ["Vendedor", r.seller.name]
+    ["Peso", r.weight], ["Núcleo", r.core], ["Face", r.face], ["Ano", r.year]
   ].filter(([, v]) => v);
+  const sp = r.remote && PROFILES[r.userId];
+  const sellerBox = sp
+    ? `<a class="seller-box" href="#p-${esc(sp.username)}"><span class="avatar sm" aria-hidden="true">${esc((sp.full_name || sp.username)[0].toUpperCase())}</span><span style="min-width:0"><b>${esc(displayName(sp))}</b><br>${ratingLine(sp.id)}</span><span class="chev" aria-hidden="true">›</span></a>`
+    : `<div class="seller-box"><span class="avatar sm" aria-hidden="true">${esc(r.seller.name[0].toUpperCase())}</span><span><b>${esc(r.seller.name)}</b><br><span class="meta">${r.remote ? "Vendedor" : "Loja Bandeja"}</span></span></div>`;
   app.innerHTML = `
     <button class="back" type="button" id="back">← Todas as raquetes</button>
     <section class="detail">
@@ -481,17 +546,19 @@ function viewRacket(r) {
         ${chip(r.condition)}
         <h1>${esc(r.name)}</h1>
         <div class="price">${euro(r.price)}</div>
+        ${r.soldAt ? `<p class="sold-banner">Vendida em ${fmtDate(r.soldAt)}</p>` : ""}
+        ${sellerBox}
         <dl class="specs">${specs.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
         ${r.notes ? `<p class="notes">${esc(r.notes)}</p>` : ""}
         <div class="actions">
-          ${mine ? "" : `<button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "Está no seu cesto" : "Adicionar ao cesto"}</button>`}
+          ${mine || r.soldAt ? "" : `<button class="btn btn-primary" type="button" id="add" ${inBasket ? "disabled" : ""}>${inBasket ? "Está no seu cesto" : "Adicionar ao cesto"}</button>`}
           ${inBasket ? `<button class="btn btn-dark" type="button" id="goBasket">Ir para o cesto</button>` : ""}
           ${r.review ? `<a class="btn btn-ghost yt" href="${esc(r.review)}" target="_blank" rel="noopener">${ytIcon} Ver review no YouTube</a>` : ""}
         </div>
-        ${mine ? `
+        ${mine && !r.soldAt ? `
         <div class="owner-box">
           <b>Este anúncio é seu.</b>
-          <p class="hint">Quando vender a raquete, remova o anúncio para que deixe de aparecer.</p>
+          <p class="hint">Quando vender a raquete, marque-a como vendida em <a href="#account">A minha conta</a> para o comprador a poder avaliar. Se desistir de vender, remova o anúncio.</p>
           <div class="inline-form">${removeButton(r)}</div>
         </div>` : ""}
       </div>
@@ -568,34 +635,253 @@ function firstName() {
   return (m.full_name || m.name || "").split(" ")[0].slice(0, 40);
 }
 
+/* ----- profile setup (username + optional name) ----- */
+function viewSetup() {
+  if (!user) return viewLogin();
+  const p = myProfile();
+  const m = user.user_metadata || {};
+  const suggested = p ? p.username
+    : (m.full_name || m.name || (user.email || "").split("@")[0] || "")
+        .toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9_.]+/g, ".").replace(/^\.+|\.+$/g, "").slice(0, 20);
+  app.innerHTML = `
+    <h1 class="page-title">${p ? "Editar perfil" : "Escolha o seu nome de utilizador"}</h1>
+    <form class="panel login-panel" id="setupForm" novalidate>
+      ${p ? "" : `<p>É assim que os compradores o vão ver na Bandeja. Pode mudar mais tarde.</p>`}
+      <div class="field" style="width:100%"><label for="u-name">Nome de utilizador</label>
+        <div class="at-input"><span aria-hidden="true">@</span><input id="u-name" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" value="${esc(suggested)}" required></div>
+        <span class="hint">3 a 20 caracteres: letras minúsculas, números, ponto ou _.</span></div>
+      <div class="field" style="width:100%"><label for="u-full">Nome (opcional)</label>
+        <input id="u-full" maxlength="60" autocomplete="name" value="${esc(p ? p.full_name || "" : (m.full_name || m.name || ""))}">
+        <span class="hint">Se o preencher, aparece nos seus anúncios em vez do nome de utilizador.</span></div>
+      <p class="error" id="setupError" hidden></p>
+      <div class="actions" style="margin-top:0">
+        <button class="btn btn-primary" type="submit" id="setupSave">${p ? "Guardar" : "Continuar"}</button>
+        ${p ? `<button class="btn btn-ghost" type="button" id="setupCancel">Cancelar</button>` : ""}
+      </div>
+    </form>`;
+  const un = document.getElementById("u-name");
+  un.oninput = () => { const v = un.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""); if (v !== un.value) un.value = v; };
+  const cancel = document.getElementById("setupCancel"); if (cancel) cancel.onclick = () => go("account");
+  document.getElementById("setupForm").onsubmit = async e => {
+    e.preventDefault();
+    const err = document.getElementById("setupError");
+    const fail = m => { err.textContent = m; err.hidden = false; };
+    const username = un.value.trim();
+    const full = document.getElementById("u-full").value.trim();
+    if (!/^[a-z0-9_.]{3,20}$/.test(username)) return fail("O nome de utilizador tem de ter 3 a 20 caracteres: letras minúsculas, números, ponto ou _.");
+    const taken = profileByName(username);
+    if (taken && taken.id !== user.id) return fail("Esse nome de utilizador já está ocupado. Escolha outro.");
+    const btn = document.getElementById("setupSave"); btn.disabled = true;
+    const row = { username, full_name: full || null };
+    const { data, error } = p
+      ? await sb.from("profiles").update(row).eq("id", user.id).select("id,username,full_name,created_at").single()
+      : await sb.from("profiles").insert({ id: user.id, ...row }).select("id,username,full_name,created_at").single();
+    btn.disabled = false;
+    if (error) return fail(error.code === "23505" ? "Esse nome de utilizador já está ocupado. Escolha outro."
+                                                 : "Não foi possível guardar o perfil (" + error.message + "). Tente de novo.");
+    PROFILES[user.id] = data;
+    ALL = ALL.map(r => r.userId === user.id ? { ...r, seller: { ...r.seller, name: displayName(data), username: data.username } } : r);
+    ITEMS = [...ALL.filter(r => !r.soldAt), ...shopItems()];
+    updateAccountBtn();
+    toast(p ? "Perfil guardado" : "Bem-vindo, @" + data.username);
+    let next = "account";
+    try { next = sessionStorage.getItem("bandeja-after-setup") || next; sessionStorage.removeItem("bandeja-after-setup"); } catch (x) {}
+    go(next);
+  };
+}
+
+/* ----- public seller page ----- */
+function card(r) {
+  return `
+    <article class="card">
+      <a class="card-link" href="#r-${r.id}">
+        <div class="art">${cover(r)}</div>
+        <div class="card-body">
+          <h2 class="card-name">${esc(r.name)}</h2>
+          <div class="meta">${[r.shapeKnown === false ? "" : shapePT(r.shape), r.weight, basket.includes(r.id) ? "No cesto" : ""].filter(Boolean).map(esc).join(" · ")}</div>
+          <div class="row"><span class="price">${euro(r.price)}</span>${chip(r.condition)}</div>
+        </div>
+      </a>
+      <div class="card-foot">
+        ${sellerLink(r)}
+        ${r.review ? `<a class="yt" href="${esc(r.review)}" target="_blank" rel="noopener" aria-label="Ver review de ${esc(r.name)} no YouTube">${ytIcon} Review</a>` : ""}
+      </div>
+    </article>`;
+}
+const sellerLink = r => r.seller.username
+  ? `<a class="seller-link" href="#p-${esc(r.seller.username)}">${esc(r.seller.name)}${sellerStats(r.userId).count ? ` <span class="mini-star">★ ${sellerStats(r.userId).avg.toFixed(1).replace(".", ",")}</span>` : ""}</a>`
+  : `<span class="seller">${esc(r.seller.name)}</span>`;
+
+function viewProfile(username) {
+  const p = profileByName(username);
+  if (!p) {
+    app.innerHTML = profilesState === "loading" ? `<p class="status">A carregar perfil…</p>`
+      : `<h1 class="page-title">Perfil não encontrado</h1><div class="panel"><p>Não existe nenhum vendedor com o nome @${esc(username)}.</p><button class="btn btn-primary" type="button" id="browse">Ver raquetes</button></div>`;
+    const b = document.getElementById("browse"); if (b) b.onclick = () => go("shop");
+    return;
+  }
+  const forSale = ALL.filter(r => r.userId === p.id && !r.soldAt);
+  const sold = ALL.filter(r => r.userId === p.id && r.soldAt);
+  const reviews = REVIEWS.filter(r => r.seller_id === p.id);
+  const s = sellerStats(p.id);
+  app.innerHTML = `
+    <button class="back" type="button" id="back">← Todas as raquetes</button>
+    <section class="profile-head">
+      <div class="avatar" aria-hidden="true">${esc((p.full_name || p.username)[0].toUpperCase())}</div>
+      <div style="min-width:0">
+        <h1>${esc(p.full_name || "@" + p.username)}</h1>
+        <div class="meta">${p.full_name ? "@" + esc(p.username) + " · " : ""}Na Bandeja desde ${fmtDate(p.created_at)}</div>
+        <div class="profile-stats">${ratingLine(p.id)} <span class="meta">· ${s.sold} ${s.sold === 1 ? "venda" : "vendas"}</span></div>
+      </div>
+      ${user && user.id === p.id ? `<button class="btn btn-ghost" type="button" id="editProfile">Editar perfil</button>` : ""}
+    </section>
+
+    <h2 class="section-title">À venda <span class="meta">${forSale.length}</span></h2>
+    ${forSale.length ? `<section class="grid">${forSale.map(card).join("")}</section>` : `<p class="status">Nada à venda neste momento.</p>`}
+
+    <h2 class="section-title">Avaliações <span class="meta">${reviews.length}</span></h2>
+    ${reviews.length ? `<div class="reviews">${reviews.map(reviewHTML).join("")}</div>` : `<p class="status">Este vendedor ainda não tem avaliações.</p>`}
+
+    ${sold.length ? `<h2 class="section-title">Vendidas <span class="meta">${sold.length}</span></h2>
+      <div class="panel"><div class="mine">${sold.map(r => `<div class="mine-row"><a class="mini-link" href="#r-${esc(r.id)}"><span class="mini">${cover(r)}</span><span style="min-width:0"><b>${esc(r.name)}</b><br><span class="meta">Vendida em ${fmtDate(r.soldAt)}</span></span></a></div>`).join("")}</div></div>` : ""}`;
+  document.getElementById("back").onclick = () => go("shop");
+  const ed = document.getElementById("editProfile"); if (ed) ed.onclick = () => go("setup");
+}
+
+function reviewHTML(rv) {
+  const buyer = PROFILES[rv.buyer_id];
+  const item = ALL.find(l => l.uuid === rv.listing_id);
+  return `<article class="review">
+    <div class="review-top">${stars(rv.rating)}<span class="meta">${fmtDate(rv.created_at)}</span></div>
+    ${rv.comment ? `<p>${esc(rv.comment)}</p>` : ""}
+    <div class="meta">${buyer ? `<a href="#p-${esc(buyer.username)}">@${esc(buyer.username)}</a>` : "Comprador"}${item ? ` comprou <a href="#r-${esc(item.id)}">${esc(item.name)}</a>` : ""}</div>
+  </article>`;
+}
+
+/* ----- my account ----- */
 function viewAccount() {
   if (!user) return viewLogin();
-  const mine = ITEMS.filter(isMine);
-  const m = user.user_metadata || {};
+  const p = myProfile();
+  if (!p) return viewSetup();
+  const active = ALL.filter(r => isMine(r) && !r.soldAt);
+  const sold = ALL.filter(r => isMine(r) && r.soldAt);
+  const bought = ALL.filter(r => r.buyerId === user.id);
+  const reviewOf = r => REVIEWS.find(x => x.listing_id === r.uuid);
+  const row = (r, right, sub) => `
+    <div class="mine-row">
+      <a class="mini-link" href="#r-${esc(r.id)}"><span class="mini">${cover(r)}</span><span style="min-width:0"><b>${esc(r.name)}</b><br><span class="meta">${sub}</span></span></a>
+      <div class="row-actions">${right}</div>
+    </div>`;
   app.innerHTML = `
     <h1 class="page-title">A minha conta</h1>
     <div class="sell-layout">
-      <div class="panel">
-        <div style="font-weight:700;margin-bottom:6px">Os meus anúncios</div>
-        ${listingsState === "loading" ? `<p class="status">A carregar…</p>` : mine.length ? `
-        <div class="mine">${mine.map(r => `
-          <div class="mine-row">
-            <a class="mini-link" href="#r-${esc(r.id)}"><span class="mini">${cover(r)}</span><span style="min-width:0"><b>${esc(r.name)}</b><br><span class="meta">${euro(r.price)} · ${esc(COND_PT[r.condition])}</span></span></a>
-            ${removeButton(r)}
-          </div>`).join("")}</div>` : `<p class="status">Ainda não tem anúncios.</p>`}
-        <div class="actions"><button class="btn btn-primary" type="button" id="newListing">Anunciar uma raquete</button></div>
+      <div style="display:grid;gap:20px;min-width:0">
+        <div class="panel">
+          <div class="panel-title">À venda</div>
+          ${listingsState === "loading" ? `<p class="status">A carregar…</p>` : active.length ? `<div class="mine">${active.map(r => row(r,
+            `<button class="btn btn-dark" type="button" data-sold="${esc(r.id)}">Marcar como vendida</button>${removeButton(r)}`,
+            `${euro(r.price)} · ${esc(COND_PT[r.condition])}`) + `<form class="sold-form" id="sf-${esc(r.id)}" hidden>
+              <label for="buyer-${esc(r.id)}">Quem comprou? (nome de utilizador)</label>
+              <div class="inline-form"><div class="at-input" style="flex:1"><span aria-hidden="true">@</span><input id="buyer-${esc(r.id)}" autocapitalize="none" spellcheck="false" placeholder="joao.silva"></div>
+              <button class="btn btn-primary" type="submit">Confirmar venda</button></div>
+              <span class="hint">O comprador precisa de ter conta na Bandeja para poder avaliar a venda. Depois de confirmar, não é possível desfazer.</span>
+              <p class="error" hidden></p>
+            </form>`).join("")}</div>` : `<p class="status">Não tem raquetes à venda.</p>`}
+          <div class="actions"><button class="btn btn-primary" type="button" id="newListing">Anunciar uma raquete</button></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">As minhas compras</div>
+          ${bought.length ? `<div class="mine">${bought.map(r => {
+            const rv = reviewOf(r);
+            return row(r, rv ? stars(rv.rating) : `<button class="btn btn-primary" type="button" data-review="${esc(r.id)}">Avaliar</button>`,
+              `Vendida por ${esc(r.seller.name)}${rv ? " · avaliada" : ""}`) + (rv ? "" : reviewForm(r));
+          }).join("")}</div>` : `<p class="status">Quando um vendedor confirmar uma venda para @${esc(p.username)}, ela aparece aqui para a avaliar.</p>`}
+        </div>
+        ${sold.length ? `<div class="panel">
+          <div class="panel-title">Vendidas</div>
+          <div class="mine">${sold.map(r => { const rv = reviewOf(r), b = PROFILES[r.buyerId];
+            return row(r, rv ? stars(rv.rating) : `<span class="meta">Sem avaliação</span>`, `Para ${b ? "@" + esc(b.username) : "comprador"} · ${fmtDate(r.soldAt)}`); }).join("")}</div>
+        </div>` : ""}
       </div>
       <div class="panel">
-        <div style="font-weight:700;margin-bottom:6px">Conta Google</div>
-        <p style="margin:0">${esc(m.full_name || m.name || "")}</p>
-        <p class="meta" style="margin:0 0 14px">${esc(user.email || "")}</p>
-        <button class="btn btn-ghost" type="button" id="logout">Terminar sessão</button>
+        <div class="panel-title">Perfil</div>
+        <p style="margin:0"><b>${esc(p.full_name || "@" + p.username)}</b></p>
+        <p class="meta" style="margin:0">@${esc(p.username)} · ${esc(user.email || "")}</p>
+        <div style="margin:10px 0 14px">${ratingLine(p.id)}</div>
+        <div class="actions" style="margin-top:0">
+          <a class="btn btn-ghost" href="#p-${esc(p.username)}" style="text-decoration:none">Ver o meu perfil</a>
+          <button class="btn btn-ghost" type="button" id="editProfile">Editar perfil</button>
+          <button class="btn btn-ghost" type="button" id="logout">Terminar sessão</button>
+        </div>
       </div>
     </div>`;
   document.getElementById("newListing").onclick = () => { sellResult = null; go("sell"); };
   document.getElementById("logout").onclick = signOut;
+  document.getElementById("editProfile").onclick = () => go("setup");
   wireRemoveButtons(() => viewAccount());
+
+  app.querySelectorAll("[data-sold]").forEach(b => b.onclick = () => {
+    const f = document.getElementById("sf-" + b.dataset.sold); f.hidden = !f.hidden;
+    if (!f.hidden) f.querySelector("input").focus();
+  });
+  app.querySelectorAll(".sold-form").forEach(f => f.onsubmit = async e => {
+    e.preventDefault();
+    const r = byId(f.id.slice(3));
+    const err = f.querySelector(".error");
+    const fail = m => { err.textContent = m; err.hidden = false; };
+    const name = f.querySelector("input").value.trim().replace(/^@/, "").toLowerCase();
+    const buyer = profileByName(name);
+    if (!buyer) return fail("Não existe nenhuma conta @" + name + ". Peça ao comprador o nome de utilizador dele na Bandeja.");
+    if (buyer.id === user.id) return fail("Não pode vender a si próprio.");
+    const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
+    const soldAt = new Date().toISOString();
+    const { data, error } = await sb.from("listings").update({ sold_at: soldAt, buyer_id: buyer.id }).eq("id", r.uuid).select("id");
+    btn.disabled = false;
+    if (error || !data || !data.length) return fail("Não foi possível marcar como vendida. Tente de novo.");
+    ALL = ALL.map(x => x.id === r.id ? { ...x, soldAt, buyerId: buyer.id } : x);
+    ITEMS = ITEMS.filter(x => x.id !== r.id);
+    toast("Venda confirmada. @" + buyer.username + " já pode avaliar.");
+    viewAccount();
+  });
+
+  app.querySelectorAll("[data-review]").forEach(b => b.onclick = () => {
+    const f = document.getElementById("rf-" + b.dataset.review); f.hidden = !f.hidden;
+  });
+  app.querySelectorAll(".review-form").forEach(f => {
+    f.querySelectorAll(".star-pick button").forEach(s => s.onclick = () => {
+      f.dataset.rating = s.dataset.n;
+      f.querySelectorAll(".star-pick button").forEach(x => x.classList.toggle("on", +x.dataset.n <= +s.dataset.n));
+      f.querySelectorAll(".star-pick button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.n === +s.dataset.n));
+    });
+    f.onsubmit = async e => {
+      e.preventDefault();
+      const r = byId(f.id.slice(3));
+      const err = f.querySelector(".error");
+      const rating = +f.dataset.rating || 0;
+      if (!rating) { err.textContent = "Escolha de 1 a 5 estrelas."; err.hidden = false; return; }
+      const comment = f.querySelector("textarea").value.trim();
+      const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
+      const { data, error } = await sb.from("reviews")
+        .insert({ listing_id: r.uuid, seller_id: r.userId, rating, comment: comment || null })
+        .select("id,listing_id,seller_id,buyer_id,rating,comment,created_at").single();
+      btn.disabled = false;
+      if (error) { err.textContent = error.code === "23505" ? "Já avaliou esta compra." : "Não foi possível publicar a avaliação. Tente de novo."; err.hidden = false; return; }
+      REVIEWS = [data, ...REVIEWS];
+      toast("Avaliação publicada");
+      viewAccount();
+    };
+  });
 }
+
+const reviewForm = r => `
+  <form class="review-form" id="rf-${esc(r.id)}" hidden>
+    <span class="field-label">Como correu a compra a ${esc(r.seller.name)}?</span>
+    <div class="star-pick" role="group" aria-label="Classificação">${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}" aria-pressed="false" aria-label="${n} ${n === 1 ? "estrela" : "estrelas"}">★</button>`).join("")}</div>
+    <label for="rc-${esc(r.id)}" class="field-label">Comentário (opcional)</label>
+    <textarea id="rc-${esc(r.id)}" rows="3" maxlength="500" placeholder="A raquete correspondia ao anúncio? O vendedor foi rápido?"></textarea>
+    <p class="error" hidden></p>
+    <button class="btn btn-primary" type="submit">Publicar avaliação</button>
+  </form>`;
 
 /* ----- selling ----- */
 let sellResult = null;
@@ -606,6 +892,7 @@ function viewSell() {
     return;
   }
   if (!user) return viewLogin("Para anunciar uma raquete, entre com a sua conta Google. Assim pode gerir e remover os seus anúncios quando quiser.");
+  if (!myProfile()) { if (profilesState === "loading") { app.innerHTML = `<p class="status">A carregar…</p>`; return; } try { sessionStorage.setItem("bandeja-after-setup", "sell"); } catch (e) {} return viewSetup(); }
   if (sellResult) {
     const r = sellResult;
     app.innerHTML = `<h1 class="page-title">A sua raquete está anunciada</h1>
@@ -642,11 +929,9 @@ function viewSell() {
           <div class="previews" id="previews"></div><span class="hint">Frente, verso e quaisquer marcas ou danos.</span></div>
         <div class="field"><label for="s-notes">Descrição</label><textarea id="s-notes" rows="4" maxlength="600" placeholder="Quanto foi usada, marcas, o que inclui"></textarea></div>
         <div class="field"><label for="s-review">Link de review no YouTube (opcional)</label><input id="s-review" inputmode="url" placeholder="https://www.youtube.com/watch?v=…"></div>
-        <div class="two">
-          <div class="field"><label for="s-seller">O seu nome</label><input id="s-seller" maxlength="40" autocomplete="given-name" value="${esc(firstName())}" required></div>
-          <div class="field"><label for="s-phone">O seu número MB WAY</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(lastPhone)}" required></div>
-        </div>
-        <label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o meu nome e número de telemóvel ficam visíveis no anúncio, para que os compradores me paguem por MB WAY e me contactem por WhatsApp.</span></label>
+        <div class="field"><label for="s-phone">O seu número MB WAY</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(lastPhone)}" required>
+          <span class="hint">O anúncio aparece com o nome do seu perfil: <b>${esc(displayName(myProfile()))}</b>.</span></div>
+        <label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o nome do meu perfil e o meu número de telemóvel ficam visíveis no anúncio, para que os compradores me paguem por MB WAY e me contactem por WhatsApp.</span></label>
         <p class="error" id="sellError" hidden></p>
         <button class="btn btn-primary" type="submit" id="sellSubmit" style="width:100%;margin-top:14px">Anunciar a minha raquete</button>
       </form>
@@ -683,7 +968,6 @@ function viewSell() {
     if (!(price > 0 && price < 5000)) return fail("Introduza um preço em euros, por exemplo 120.");
     if (review && !safeYouTube(review)) return fail("O link da review tem de ser um link do YouTube que comece por https://.");
     if (!files.length) return fail("Adicione pelo menos uma foto da raquete.");
-    if (v("s-seller").length < 2) return fail("Introduza o seu nome.");
     if (!/^9[1236]\d{7}$/.test(phone)) return fail("Introduza o seu número MB WAY: 9 dígitos, a começar por 91, 92, 93 ou 96.");
     if (!document.getElementById("s-consent").checked) return fail("Marque a caixa para aceitar mostrar o seu nome e número.");
     if (!user) return viewLogin();
@@ -703,7 +987,7 @@ function viewSell() {
       const { data: newId, error } = await sb.rpc("create_listing", {
         p_name: v("s-name"), p_condition: cond.value, p_price: Math.round(price * 100) / 100,
         p_shape: document.getElementById("s-shape").value, p_weight: v("s-weight"), p_notes: v("s-notes"),
-        p_review: review, p_photos: uploaded, p_seller_name: v("s-seller"), p_seller_phone: phone });
+        p_review: review, p_photos: uploaded, p_seller_phone: phone });
       if (error) throw error;
       put("bandeja-last-phone", phone);
       sellResult = { id: newId, name: v("s-name") };
@@ -874,12 +1158,18 @@ function go(where) { if (location.hash === "#" + where) render(); else location.
 function render(scroll = true) {
   const h = location.hash.slice(1);
   if (scroll) window.scrollTo(0, 0);
+  if (user && profilesState === "ok" && !myProfile() && !["setup", "basket", "order", "login"].includes(h)) {
+    try { sessionStorage.setItem("bandeja-after-setup", h || "shop"); } catch (e) {}
+    return viewSetup();
+  }
   if (h.startsWith("r-") && byId(h.slice(2))) viewRacket(byId(h.slice(2)));
   else if (h.startsWith("r-u") && listingsState === "loading") app.innerHTML = `<p class="status">A carregar raquete…</p>`;
   else if (h === "basket") viewBasket();
   else if (h === "order") viewOrder();
   else if (h === "sell") viewSell();
   else if (h === "login") viewLogin();
+  else if (h === "setup") viewSetup();
+  else if (h.startsWith("p-")) viewProfile(h.slice(2));
   else if (h === "account") viewAccount();
   else viewShop();
 }

@@ -208,6 +208,9 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 .test-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--ball); color: var(--fg); font-size: 14px; }
 .test-line svg { color: var(--ball); }
 .check-soft { margin-bottom: 14px; }
+.remove-choice { display: grid; gap: 6px; margin: 10px 0 4px; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--bg); }
+.remove-choice .hint { margin: 0; }
+.remove-choice .inline-form { margin-top: 6px; }
 .contact-box { margin-top: 22px; padding: 18px; border-radius: 14px; background: var(--court); color: var(--court-ink); display: grid; gap: 10px; }
 .contact-box p { margin: 0; }
 .contact-box .hint { color: var(--court-ink); opacity: .8; }
@@ -625,28 +628,58 @@ function contactBox(r) {
 
 /* Two-step remove: first tap asks, second tap removes. */
 const removeButton = r => `<button class="btn btn-ghost" type="button" data-del="${esc(r.id)}">Remover anúncio</button>`;
+/* "Remover anúncio" first asks whether the racket was sold:
+   sold → the mark-as-sold form (kept in the seller's history); not sold → delete. */
+let openSoldFor = null;
 function wireRemoveButtons(after) {
-  app.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
-    if (b.dataset.armed !== "1") {
-      b.dataset.armed = "1"; b.textContent = "Confirmar remoção"; b.classList.replace("btn-ghost", "btn-dark");
-      setTimeout(() => { if (b.isConnected && b.dataset.armed === "1") { b.dataset.armed = ""; b.textContent = "Remover anúncio"; b.classList.replace("btn-dark", "btn-ghost"); } }, 4000);
-      return;
-    }
+  app.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
     const r = byId(b.dataset.del);
     if (!r) return;
-    b.disabled = true; b.textContent = "A remover…";
-    try {
-      const { data, error } = await sb.from("listings").delete().eq("id", r.uuid).select("id");
-      if (error) throw error;
-      if (!data || !data.length) throw new Error("not yours");
-      if (r.photoPaths.length) await sb.storage.from("photos").remove(withThumbs(r.photoPaths));
-      ITEMS = ITEMS.filter(x => x.id !== r.id);
-      toast("Anúncio removido");
-      after();
-    } catch (ex) {
-      b.disabled = false; b.dataset.armed = ""; b.textContent = "Remover anúncio";
-      toast("Não foi possível remover o anúncio. Tente de novo.");
-    }
+    const box = b.closest(".mine-row, .owner-box") || b.parentElement;
+    if (box.nextElementSibling && box.nextElementSibling.classList.contains("remove-choice")) return;
+    const panel = document.createElement("div");
+    panel.className = "remove-choice";
+    panel.innerHTML = `
+      <b>Vendeu esta raquete?</b>
+      <p class="hint">Se a vendeu, marque-a como vendida: fica no seu histórico de vendas e, se indicar o comprador, ele pode avaliá-la.</p>
+      <div class="inline-form">
+        <button class="btn btn-primary" type="button" data-choice="sold">Sim, marcar como vendida</button>
+        <button class="btn btn-dark" type="button" data-choice="remove">Não, só remover</button>
+        <button class="btn btn-ghost" type="button" data-choice="cancel">Cancelar</button>
+      </div>`;
+    box.after(panel);
+    b.disabled = true;
+    const close = () => { panel.remove(); b.disabled = false; };
+    panel.querySelector('[data-choice="cancel"]').onclick = close;
+    panel.querySelector('[data-choice="sold"]').onclick = () => {
+      const form = document.getElementById("sf-" + r.id);
+      if (form) {                       // on A minha conta: open the form right here
+        close();
+        form.hidden = false;
+        form.scrollIntoView({ block: "center", behavior: "smooth" });
+        form.querySelector("input").focus();
+      } else {                          // on the racket page: go to A minha conta with it open
+        openSoldFor = r.id;
+        go("account");
+      }
+    };
+    const rm = panel.querySelector('[data-choice="remove"]');
+    rm.onclick = async () => {
+      rm.disabled = true; rm.textContent = "A remover…";
+      try {
+        const { data, error } = await sb.from("listings").delete().eq("id", r.uuid).select("id");
+        if (error) throw error;
+        if (!data || !data.length) throw new Error("not yours");
+        if (r.photoPaths.length) await sb.storage.from("photos").remove(withThumbs(r.photoPaths));
+        ITEMS = ITEMS.filter(x => x.id !== r.id);
+        ALL = ALL.filter(x => x.id !== r.id);
+        toast("Anúncio removido");
+        after();
+      } catch (ex) {
+        rm.disabled = false; rm.textContent = "Não, só remover";
+        toast("Não foi possível remover o anúncio. Tente de novo.");
+      }
+    };
   });
 }
 
@@ -905,8 +938,13 @@ function viewAccount() {
 
   app.querySelectorAll("[data-sold]").forEach(b => b.onclick = () => {
     const f = document.getElementById("sf-" + b.dataset.sold); f.hidden = !f.hidden;
+    openSoldFor = null;
     if (!f.hidden) f.querySelector("input").focus();
   });
+  if (openSoldFor) {                    // arrived from "Remover anúncio → Sim, vendi" (kept until leaving the page)
+    const f = document.getElementById("sf-" + openSoldFor);
+    if (f) { f.hidden = false; setTimeout(() => { f.scrollIntoView({ block: "center" }); f.querySelector("input").focus(); }, 0); }
+  }
   app.querySelectorAll(".sold-form").forEach(f => f.onsubmit = async e => {
     e.preventDefault();
     const r = byId(f.id.slice(3));
@@ -1223,6 +1261,7 @@ if (GOATCOUNTER) {
 function render(scroll = true) {
   setTimeout(countView, 0);
   const h = location.hash.slice(1);
+  if (h !== "account") openSoldFor = null;
   if (scroll) window.scrollTo(0, 0);
   if (user && profilesState === "ok" && !myProfile() && !["setup", "login"].includes(h)) {
     try { sessionStorage.setItem("bandeja-after-setup", h || "shop"); } catch (e) {}

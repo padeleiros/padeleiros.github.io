@@ -303,6 +303,10 @@ const SHOP = {
   whatsapp: "351912345678"     // same number with country code, digits only
 };
 
+/* Page view statistics (GoatCounter, no cookies). Put your GoatCounter code here,
+   e.g. "padeleiros" -> stats at https://padeleiros.goatcounter.com. Empty = switched off. */
+const GOATCOUNTER = "";
+
 /* Database for listings from other sellers (see supabase-setup.sql).
    Leave empty to switch "Sell a racket" off. The publishable/anon key is meant to be public. */
 const SUPABASE = {
@@ -1175,7 +1179,35 @@ function go(where) {
   } else if (location.hash === "#" + where) render();
   else location.hash = where;
 }
+/* Counts one page view each time the visitor lands on a different page.
+   The front page is "/", others keep their #… address (e.g. "/#r-u<id>" for a racket). */
+let lastCounted = null;
+function countView() {
+  if (!GOATCOUNTER) return;
+  const path = location.pathname + location.hash;
+  if (path === lastCounted) return;
+  const h = location.hash.slice(1);
+  if (h.startsWith("r-u") && !byId(h.slice(2))) return;          // wait until the racket has loaded
+  if (h.startsWith("p-") && !profileByName(h.slice(2))) return;  // wait until the seller has loaded
+  lastCounted = path;
+  const r = h.startsWith("r-") ? byId(h.slice(2)) : null;
+  const title = r ? r.name : h.startsWith("p-") ? "@" + h.slice(2) : document.title;
+  const send = () => window.goatcounter.count({ path, title });
+  if (window.goatcounter && window.goatcounter.count) send();
+  else (window.gcQueue = window.gcQueue || []).push(send);
+}
+if (GOATCOUNTER) {
+  window.goatcounter = { no_onload: true };
+  const gc = document.createElement("script");
+  gc.async = true;
+  gc.src = "https://gc.zgo.at/count.js";
+  gc.dataset.goatcounter = `https://${GOATCOUNTER}.goatcounter.com/count`;
+  gc.onload = () => (window.gcQueue || []).splice(0).forEach(f => f());
+  document.head.appendChild(gc);
+}
+
 function render(scroll = true) {
+  setTimeout(countView, 0);
   const h = location.hash.slice(1);
   if (scroll) window.scrollTo(0, 0);
   if (user && profilesState === "ok" && !myProfile() && !["setup", "login"].includes(h)) {

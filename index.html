@@ -652,7 +652,7 @@ function viewLogin(reason) {
 
 async function signIn() {
   const err = document.getElementById("loginError");
-  try { sessionStorage.setItem("bandeja-after-login", location.hash.slice(1) === "login" ? "sell" : (location.hash.slice(1) || "shop")); } catch (e) {}
+  try { sessionStorage.setItem("bandeja-after-login", location.hash.slice(1) === "login" ? "shop" : (location.hash.slice(1) || "shop")); } catch (e) {}
   const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
   if (error && err) { err.textContent = "Não foi possível abrir o login Google (" + error.message + "). Tente de novo."; err.hidden = false; }
 }

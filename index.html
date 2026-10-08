@@ -8,37 +8,37 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Layout: a court-blue top bar, a calm grid of racket cards, one view at a time (shop / racket / seller / sell / account) */
-/* Palette: ink black and racket red. --bar is the top bar, --court the dark panels, --ball the red action colour. */
+/* Palette: ink black and court green. --bar is the top bar, --court the dark panels, --ball the green action colour. */
 :root {
-  --bg: #f5f3f3;
+  --bg: #f3f5f3;
   --surface: #ffffff;
-  --fg: #151314;
-  --muted: #6b6466;
-  --line: #e4dfe0;
-  --bar: #0b0a0a;
-  --court: #161415;
+  --fg: #131614;
+  --muted: #626a64;
+  --line: #dfe4e0;
+  --bar: #0a0c0b;
+  --court: #141816;
   --court-ink: #ffffff;
-  --ball: #d7192a;
+  --ball: #15803d;
   --ball-ink: #ffffff;
-  --link: #c0141f;
+  --link: #13723a;
   --good: #1f7a4d;
   --warn: #9a6a00;
   --chip-new: #e3f1e8;
   --chip-used: #f7ece0;
-  --art-bg: #ecebeb;
+  --art-bg: #e9ece9;
   --font-display: "Saira Condensed", "Arial Narrow", Arial, sans-serif;
   --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0d0c0c; --surface: #181617; --fg: #f2eeee; --muted: #a39b9d; --line: #2c2829;
-  --bar: #000000; --court: #221f20; --court-ink: #ffffff; --ball: #e5262f; --ball-ink: #ffffff; --link: #ff6a70;
-  --good: #5cc890; --warn: #e2b44a; --chip-new: #173a2b; --chip-used: #3a2a19; --art-bg: #222021;
+  --bg: #0b0d0c; --surface: #161917; --fg: #eef2ef; --muted: #9ba39d; --line: #283029;
+  --bar: #000000; --court: #1d2320; --court-ink: #ffffff; --ball: #22c55e; --ball-ink: #04210f; --link: #4ade80;
+  --good: #5cc890; --warn: #e2b44a; --chip-new: #173a2b; --chip-used: #3a2a19; --art-bg: #1f2421;
   color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0d0c0c; --surface: #181617; --fg: #f2eeee; --muted: #a39b9d; --line: #2c2829;
-  --bar: #000000; --court: #221f20; --court-ink: #ffffff; --ball: #e5262f; --ball-ink: #ffffff; --link: #ff6a70;
-  --good: #5cc890; --warn: #e2b44a; --chip-new: #173a2b; --chip-used: #3a2a19; --art-bg: #222021;
+  --bg: #0b0d0c; --surface: #161917; --fg: #eef2ef; --muted: #9ba39d; --line: #283029;
+  --bar: #000000; --court: #1d2320; --court-ink: #ffffff; --ball: #22c55e; --ball-ink: #04210f; --link: #4ade80;
+  --good: #5cc890; --warn: #e2b44a; --chip-new: #173a2b; --chip-used: #3a2a19; --art-bg: #1f2421;
   color-scheme: dark }
 
 * { box-sizing: border-box; }
@@ -219,7 +219,7 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mini-star { color: #e8b84a; } }
 .seller-link { font-size: 13px; font-weight: 600; color: var(--fg); text-decoration: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .seller-link:hover { text-decoration: underline; }
-.avatar { flex: none; width: 64px; height: 64px; border-radius: 50%; background: var(--ball); color: var(--court-ink); display: grid; place-items: center; font: 800 28px var(--font-display); }
+.avatar { flex: none; width: 64px; height: 64px; border-radius: 50%; background: var(--ball); color: var(--ball-ink); display: grid; place-items: center; font: 800 28px var(--font-display); }
 .avatar.sm { width: 40px; height: 40px; font-size: 18px; }
 .seller-box { display: flex; align-items: center; gap: 12px; margin-top: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--fg); text-decoration: none; }
 a.seller-box:hover { border-color: var(--ball); }
@@ -273,7 +273,7 @@ a.seller-box:hover { border-color: var(--ball); }
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="./" id="homeLink" aria-label="Padeleiros, voltar a todas as raquetes">
-      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="#e5262f"/><path d="M4 11c5 3 17 3 22 0M4 19c5-3 17-3 22 0" stroke="#ffffff" stroke-width="1.6" fill="none"/></svg>
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="#22a34a"/><path d="M4 11c5 3 17 3 22 0M4 19c5-3 17-3 22 0" stroke="#ffffff" stroke-width="1.6" fill="none"/></svg>
       <span class="brand-name">Padeleiros</span>
     </a>
     <div class="top-actions">

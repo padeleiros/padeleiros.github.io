@@ -831,10 +831,10 @@ function viewAccount() {
           ${listingsState === "loading" ? `<p class="status">A carregar…</p>` : active.length ? `<div class="mine">${active.map(r => row(r,
             `<a class="btn btn-ghost" href="#edit-${esc(r.id)}" style="text-decoration:none">Editar</a><button class="btn btn-dark" type="button" data-sold="${esc(r.id)}">Marcar como vendida</button>${removeButton(r)}`,
             `${euro(r.price)} · ${esc(COND_PT[r.condition])}`) + `<form class="sold-form" id="sf-${esc(r.id)}" hidden>
-              <label for="buyer-${esc(r.id)}">Quem comprou? (nome de utilizador)</label>
+              <label for="buyer-${esc(r.id)}">Quem comprou? (opcional)</label>
               <div class="inline-form"><div class="at-input" style="flex:1"><span aria-hidden="true">@</span><input id="buyer-${esc(r.id)}" autocapitalize="none" spellcheck="false" placeholder="joao.silva"></div>
               <button class="btn btn-primary" type="submit">Confirmar venda</button></div>
-              <span class="hint">O comprador precisa de ter conta no Padeleiros para poder avaliar a venda. Depois de confirmar, não é possível desfazer.</span>
+              <span class="hint">Se indicar o nome de utilizador do comprador no Padeleiros, ele pode avaliar a venda. Pode deixar em branco. Depois de confirmar, não é possível desfazer.</span>
               <p class="error" hidden></p>
             </form>`).join("")}</div>` : `<p class="status">Não tem raquetes à venda.</p>`}
           <div class="actions"><button class="btn btn-primary" type="button" id="newListing">Anunciar uma raquete</button></div>
@@ -850,7 +850,7 @@ function viewAccount() {
         ${sold.length ? `<div class="panel">
           <div class="panel-title">Vendidas</div>
           <div class="mine">${sold.map(r => { const rv = reviewOf(r), b = PROFILES[r.buyerId];
-            return row(r, rv ? stars(rv.rating) : `<span class="meta">Sem avaliação</span>`, `Para ${b ? "@" + esc(b.username) : "comprador"} · ${fmtDate(r.soldAt)}`); }).join("")}</div>
+            return row(r, rv ? stars(rv.rating) : b ? `<span class="meta">Sem avaliação</span>` : "", `${b ? "Para @" + esc(b.username) + " · " : "Vendida em "}${fmtDate(r.soldAt)}`); }).join("")}</div>
         </div>` : ""}
       </div>
       <div class="panel">
@@ -880,17 +880,17 @@ function viewAccount() {
     const err = f.querySelector(".error");
     const fail = m => { err.textContent = m; err.hidden = false; };
     const name = f.querySelector("input").value.trim().replace(/^@/, "").toLowerCase();
-    const buyer = profileByName(name);
-    if (!buyer) return fail("Não existe nenhuma conta @" + name + ". Peça ao comprador o nome de utilizador dele no Padeleiros.");
-    if (buyer.id === user.id) return fail("Não pode vender a si próprio.");
+    const buyer = name ? profileByName(name) : null;
+    if (name && !buyer) return fail("Não existe nenhuma conta @" + name + ". Corrija o nome de utilizador ou deixe o campo em branco.");
+    if (buyer && buyer.id === user.id) return fail("Não pode vender a si próprio.");
     const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
     const soldAt = new Date().toISOString();
-    const { data, error } = await sb.from("listings").update({ sold_at: soldAt, buyer_id: buyer.id }).eq("id", r.uuid).select("id");
+    const { data, error } = await sb.from("listings").update({ sold_at: soldAt, buyer_id: buyer ? buyer.id : null }).eq("id", r.uuid).select("id");
     btn.disabled = false;
     if (error || !data || !data.length) return fail("Não foi possível marcar como vendida. Tente de novo.");
-    ALL = ALL.map(x => x.id === r.id ? { ...x, soldAt, buyerId: buyer.id } : x);
+    ALL = ALL.map(x => x.id === r.id ? { ...x, soldAt, buyerId: buyer ? buyer.id : null } : x);
     ITEMS = ITEMS.filter(x => x.id !== r.id);
-    toast("Venda confirmada. @" + buyer.username + " já pode avaliar.");
+    toast(buyer ? "Venda confirmada. @" + buyer.username + " já pode avaliar." : "Marcada como vendida.");
     viewAccount();
   });
 

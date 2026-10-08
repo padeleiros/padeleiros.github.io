@@ -350,6 +350,14 @@ const sb = ONLINE && window.supabase
   : null;
 let user = null;
 const PHOTO_RE = /^([0-9a-f-]{36}\/)?[a-z0-9-]+\.jpg$/;   // older listings have photos without a folder
+/* Every photo is stored twice: full size (max 1400 px) for the listing page and a small
+   copy "<name>-t.jpg" (max 600 px) for cards and thumbnails. Older photos have no small
+   copy, so a small image that fails to load falls back to the full one. */
+const thumbPath = p => p.replace(/\.jpg$/, "-t.jpg");
+const withThumbs = paths => paths.flatMap(p => [p, thumbPath(p)]);
+function smallImg(small, full, alt, attrs = "") {
+  return `<img src="${esc(small)}" data-full="${esc(full)}" alt="${esc(alt)}" ${attrs} onerror="this.onerror=null;this.src=this.dataset.full">`;
+}
 const photoUrl = p => `${SUPABASE.url}/storage/v1/object/public/photos/${p.split("/").map(encodeURIComponent).join("/")}`;
 
 let PROFILES = {};        // id -> { id, username, full_name, created_at }
@@ -371,7 +379,7 @@ function fromRow(row) {
     name: row.name, condition: row.condition, price: Number(row.price),
     shape: row.shape || "teardrop", shapeKnown: !!row.shape, weight: row.weight || "", notes: row.notes || "",
     review: safeYouTube(row.review), colors: pal,
-    photoPaths: paths, photos: paths.map(photoUrl),
+    photoPaths: paths, photos: paths.map(photoUrl), thumbs: paths.map(p => photoUrl(thumbPath(p))),
     seller: { key: "s:" + (row.user_id || row.seller_phone), name: prof ? displayName(prof) : row.seller_name,
               username: prof ? prof.username : "", phone: fmtPhone(row.seller_phone), whatsapp: "351" + row.seller_phone }
   };
@@ -467,11 +475,16 @@ function racketSVG(r, view = "front") {
     <rect x="88" y="248" width="24" height="62" rx="6" fill="${frame}"/>${grip(88)}</svg>`;
 }
 const VIEWS = [["front","Frente"],["back","Verso"],["side","Lado"],["detail","Pormenor"]];
-const cover = r => r.photos.length ? `<img src="${esc(r.photos[0])}" alt="${esc(r.name)}" loading="lazy">` : racketSVG(r);
+const cover = r => r.photos.length ? smallImg(r.thumbs[0], r.photos[0], r.name, 'loading="lazy"') : racketSVG(r);
+/* html: full-size picture (listing page). small: small picture (cards, thumbnail strip). */
 function galleryItems(r) {
-  return r.photos.length
-    ? r.photos.map((u, i) => ({ label: "Foto " + (i + 1), html: `<img src="${esc(u)}" alt="${esc(r.name)}, foto ${i + 1}">` }))
-    : VIEWS.map(([v, l]) => ({ label: l, html: racketSVG(r, v) }));
+  if (!r.photos.length) return VIEWS.map(([v, l]) => { const svg = racketSVG(r, v); return { label: l, html: svg, small: svg }; });
+  return r.photos.map((u, i) => ({
+    label: "Foto " + (i + 1),
+    html: `<img src="${esc(u)}" alt="${esc(r.name)}, foto ${i + 1}">`,
+    small: smallImg(r.thumbs[i], u, `${r.name}, foto ${i + 1}`, 'loading="lazy"'),
+    smallUrl: r.thumbs[i], full: u
+  }));
 }
 
 /* ---------- small helpers ---------- */
@@ -547,7 +560,7 @@ function viewRacket(r) {
       <div>
         <div class="gallery-main" id="mainPic">${g[0].html}</div>
         ${g.length > 1 ? `<div class="thumbs">
-          ${g.map((it, i) => `<div><button class="thumb" type="button" data-i="${i}" aria-current="${i===0}" aria-label="Mostrar ${esc(it.label)}">${it.html}</button><div class="thumb-label">${esc(it.label)}</div></div>`).join("")}
+          ${g.map((it, i) => `<div><button class="thumb" type="button" data-i="${i}" aria-current="${i===0}" aria-label="Mostrar ${esc(it.label)}">${it.small}</button><div class="thumb-label">${esc(it.label)}</div></div>`).join("")}
         </div>` : ""}
       </div>
       <div>
@@ -611,7 +624,7 @@ function wireRemoveButtons(after) {
       const { data, error } = await sb.from("listings").delete().eq("id", r.uuid).select("id");
       if (error) throw error;
       if (!data || !data.length) throw new Error("not yours");
-      if (r.photoPaths.length) await sb.storage.from("photos").remove(r.photoPaths);
+      if (r.photoPaths.length) await sb.storage.from("photos").remove(withThumbs(r.photoPaths));
       ITEMS = ITEMS.filter(x => x.id !== r.id);
       toast("Anúncio removido");
       after();
@@ -714,13 +727,17 @@ function viewSetup() {
    for that slice of its width, and the dots underneath show which one is on. */
 function cardArt(r) {
   const g = galleryItems(r);
-  if (g.length < 2) return `<div class="art"><div class="art-slide on">${g[0].html}</div></div>`;
+  if (g.length < 2) return `<div class="art"><div class="art-slide on">${g[0].small}</div></div>`;
+  // only the cover downloads with the page; the rest wait (data-src) until the card is hovered
+  const slide = (it, i) => i === 0 || !it.smallUrl ? it.small
+    : `<img data-src="${esc(it.smallUrl)}" data-full="${esc(it.full)}" alt="${esc(r.name)}, foto ${i + 1}" onerror="this.onerror=null;this.src=this.dataset.full">`;
   return `<div class="art" data-slides="${g.length}">
-    ${g.map((it, i) => `<div class="art-slide${i ? "" : " on"}">${it.html}</div>`).join("")}
+    ${g.map((it, i) => `<div class="art-slide${i ? "" : " on"}">${slide(it, i)}</div>`).join("")}
     <div class="art-dots" aria-hidden="true">${g.map((_, i) => `<span${i ? "" : ' class="on"'}></span>`).join("")}</div>
   </div>`;
 }
 function showSlide(art, i) {
+  art.querySelectorAll("img[data-src]").forEach(img => { img.src = img.dataset.src; img.removeAttribute("data-src"); });
   if (+art.dataset.cur === i) return;
   art.dataset.cur = i;
   art.querySelectorAll(".art-slide").forEach((el, k) => el.classList.toggle("on", k === i));
@@ -977,7 +994,7 @@ function viewListingForm(r) {
     place: store("bandeja-last-place", ""), town: store("bandeja-last-town", ""), phone: store("bandeja-last-phone", "")
   };
   // photos: existing ones (editing) and new files, in display order
-  let pics = editing ? r.photoPaths.map((path, i) => ({ path, url: r.photos[i] })) : [];
+  let pics = editing ? r.photoPaths.map((path, i) => ({ path, url: r.thumbs[i], full: r.photos[i] })) : [];
 
   app.innerHTML = `
     <button class="back" type="button" id="back">← ${editing ? "Voltar ao anúncio" : "Todas as raquetes"}</button>
@@ -1043,7 +1060,7 @@ function viewListingForm(r) {
   const drawPics = () => {
     document.getElementById("previews").innerHTML = pics.map((p, i) => `
       <div class="pic">
-        <img src="${esc(p.url)}" alt="Foto ${i + 1}">
+        ${smallImg(p.url, p.full || p.url, "Foto " + (i + 1))}
         ${i === 0 ? `<span class="pic-tag">Capa</span>` : ""}
         <button type="button" class="pic-x" data-i="${i}" aria-label="Tirar a foto ${i + 1}">×</button>
       </div>`).join("");
@@ -1091,11 +1108,14 @@ function viewListingForm(r) {
       for (const p of pics) {
         if (!p.file) { paths.push(p.path); continue; }
         btn.textContent = `A enviar foto ${uploaded.length + 1} de ${newPics.length}…`;
-        const blob = await shrink(p.file);
+        const [blob, small] = await Promise.all([shrink(p.file), shrink(p.file, 600, 0.75)]);
         const path = `${user.id}/${(crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + paths.length + "-" + Math.random().toString(16).slice(2))}.jpg`;
-        const { error } = await sb.storage.from("photos").upload(path, blob, { contentType: "image/jpeg" });
-        if (error) throw error;
-        uploaded.push(path); paths.push(path);
+        const up1 = await sb.storage.from("photos").upload(path, blob, { contentType: "image/jpeg" });
+        if (up1.error) throw up1.error;
+        uploaded.push(path);
+        const up2 = await sb.storage.from("photos").upload(thumbPath(path), small, { contentType: "image/jpeg" });
+        if (up2.error) throw up2.error;
+        uploaded.push(thumbPath(path)); paths.push(path);
       }
       btn.textContent = editing ? "A guardar…" : "A publicar…";
       const fields = {
@@ -1109,7 +1129,7 @@ function viewListingForm(r) {
         if (error) throw error;
         if (!ok) throw new Error("o anúncio já não pode ser editado");
         const removed = r.photoPaths.filter(p => !paths.includes(p) && p.startsWith(user.id + "/"));
-        if (removed.length) sb.storage.from("photos").remove(removed).catch(() => {});
+        if (removed.length) sb.storage.from("photos").remove(withThumbs(removed)).catch(() => {});
         toast("Alterações guardadas");
         await loadListings();
         go("r-" + r.id);
@@ -1131,15 +1151,15 @@ function viewListingForm(r) {
 /* "355 g", or "355–375 g" for rackets with removable weights */
 const weightText = (a, b) => !a ? "" : b && +b > +a ? `${a}–${b} g` : `${a} g`;
 
-function shrink(file) {
+function shrink(file, max = 1400, quality = 0.82) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      const max = 1400, s = Math.min(1, max / Math.max(img.width, img.height));
+      const s = Math.min(1, max / Math.max(img.width, img.height));
       const c = document.createElement("canvas");
       c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      c.toBlob(b => b ? resolve(b) : reject(new Error("não foi possível ler a foto")), "image/jpeg", 0.82);
+      c.toBlob(b => b ? resolve(b) : reject(new Error("não foi possível ler a foto")), "image/jpeg", quality);
     };
     img.onerror = () => reject(new Error("não foi possível ler a foto"));
     img.src = URL.createObjectURL(file);

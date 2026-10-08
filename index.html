@@ -204,6 +204,10 @@ details.owner summary { cursor: pointer; color: var(--muted); font-weight: 600; 
 .place-filter select { border: 0; background: transparent; padding: 7px 4px; font-weight: 600; font-size: 14px; color: var(--fg); max-width: 220px; }
 .place { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
 .place.big { font-size: 15px; margin-top: 6px; }
+.test-tag { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--link); }
+.test-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--ball); color: var(--fg); font-size: 14px; }
+.test-line svg { color: var(--ball); }
+.check-soft { margin-bottom: 14px; }
 .contact-box { margin-top: 22px; padding: 18px; border-radius: 14px; background: var(--court); color: var(--court-ink); display: grid; gap: 10px; }
 .contact-box p { margin: 0; }
 .contact-box .hint { color: var(--court-ink); opacity: .8; }
@@ -331,6 +335,7 @@ const LOCATIONS = [
                   "Lisboa", "Portalegre", "Porto", "Santarém", "Setúbal", "Viana do Castelo", "Vila Real", "Viseu"]]
 ];
 const ALL_PLACES = LOCATIONS.flatMap(([, ps]) => ps);
+const testIcon = `<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" style="flex:none"><circle cx="8" cy="8" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const placeText = r => [r.town, r.location].filter(Boolean).join(", ");
 const pinIcon = `<svg width="11" height="14" viewBox="0 0 12 16" aria-hidden="true" style="flex:none"><path d="M6 0C2.7 0 0 2.6 0 5.9 0 10.3 6 16 6 16s6-5.7 6-10.1C12 2.6 9.3 0 6 0zm0 8.2a2.3 2.3 0 110-4.6 2.3 2.3 0 010 4.6z" fill="currentColor"/></svg>`;
 const placeOptions = (selected, emptyLabel) => `<option value="">${emptyLabel}</option>` +
@@ -379,7 +384,7 @@ function fromRow(row) {
   return {
     id: "u" + row.id, uuid: row.id, remote: true, userId: row.user_id,
     soldAt: row.sold_at || null, buyerId: row.buyer_id || null, createdAt: row.created_at,
-    location: row.location || "", town: row.town || "",
+    location: row.location || "", town: row.town || "", canTest: !!row.can_test,
     name: row.name, condition: row.condition, price: Number(row.price),
     shape: row.shape || "teardrop", shapeKnown: !!row.shape, weight: row.weight || "", notes: row.notes || "",
     review: safeYouTube(row.review), colors: pal,
@@ -418,9 +423,14 @@ async function loadListings() {
     REVIEWS = rv.data || [];
     profilesState = pr.error ? "error" : "ok";
     let res = await sb.from("listings")
-      .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id,sold_at,buyer_id,location,town")
+      .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id,sold_at,buyer_id,location,town,can_test")
       .order("created_at", { ascending: false }).limit(1000);
     if (res.error) {   // database not upgraded yet: fall back to the older columns
+      res = await sb.from("listings")
+        .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id,sold_at,buyer_id,location,town")
+        .order("created_at", { ascending: false }).limit(1000);
+    }
+    if (res.error) {
       res = await sb.from("listings")
         .select("id,created_at,name,condition,price,shape,weight,notes,review,photos,seller_name,seller_phone,user_id,sold_at,buyer_id")
         .order("created_at", { ascending: false }).limit(1000);
@@ -572,6 +582,7 @@ function viewRacket(r) {
         <h1>${esc(r.name)}</h1>
         <div class="price">${euro(r.price)}</div>
         ${placeText(r) ? `<div class="place big">${pinIcon}<span>${esc(placeText(r))}</span></div>` : ""}
+        ${r.canTest ? `<div class="test-line">${testIcon}<span><b>Pode ser experimentada</b> antes da compra. Combine com o vendedor.</span></div>` : ""}
         ${r.soldAt ? `<p class="sold-banner">Vendida em ${fmtDate(r.soldAt)}</p>` : ""}
         ${sellerBox}
         <dl class="specs">${specs.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
@@ -770,6 +781,7 @@ function card(r) {
           <h2 class="card-name">${esc(r.name)}</h2>
           <div class="meta">${[r.shapeKnown === false ? "" : shapePT(r.shape), r.weight].filter(Boolean).map(esc).join(" · ")}</div>
           ${placeText(r) ? `<div class="place">${pinIcon}<span>${esc(placeText(r))}</span></div>` : ""}
+          ${r.canTest ? `<div class="test-tag">${testIcon}<span>Pode experimentar</span></div>` : ""}
           <div class="row"><span class="price">${euro(r.price)}</span>${chip(r.condition)}</div>
         </div>
       </a>
@@ -992,10 +1004,10 @@ function viewListingForm(r) {
   const val = editing ? {
     name: r.name, condition: r.condition, price: String(r.price).replace(".", ","), shape: r.shapeKnown === false ? "" : r.shape,
     w1: wNums[0] || "", w2: wNums[1] || "", notes: r.notes, review: r.review, place: r.location, town: r.town,
-    phone: r.seller.phone.replace(/\D/g, "")
+    phone: r.seller.phone.replace(/\D/g, ""), canTest: !!r.canTest
   } : {
     name: "", condition: "New", price: "", shape: "", w1: "", w2: "", notes: "", review: "",
-    place: store("bandeja-last-place", ""), town: store("bandeja-last-town", ""), phone: store("bandeja-last-phone", "")
+    place: store("bandeja-last-place", ""), town: store("bandeja-last-town", ""), phone: store("bandeja-last-phone", ""), canTest: false
   };
   // photos: existing ones (editing) and new files, in display order
   let pics = editing ? r.photoPaths.map((path, i) => ({ path, url: r.thumbs[i], full: r.photos[i] })) : [];
@@ -1034,6 +1046,7 @@ function viewListingForm(r) {
             <select id="s-place" required>${placeOptions(val.place, "Escolha a ilha ou distrito")}</select></div>
           <div class="field"><label for="s-town">Localidade (opcional)</label><input id="s-town" maxlength="60" placeholder="Ponta Delgada" value="${esc(val.town)}"></div>
         </div>
+        <label class="check check-soft"><input type="checkbox" id="s-test" ${val.canTest ? "checked" : ""}> <span><b>Pode ser experimentada</b> (opcional)<br><span class="meta">Os interessados podem testar a raquete antes de comprar. Combinam o dia e o local consigo.</span></span></label>
         <div class="field"><label for="s-phone">O seu telemóvel (WhatsApp)</label><input id="s-phone" inputmode="tel" autocomplete="tel" placeholder="9XX XXX XXX" value="${esc(val.phone)}" required>
           <span class="hint">O anúncio aparece com o nome do seu perfil: <b>${esc(displayName(myProfile()))}</b>.</span></div>
         ${editing ? "" : `<label class="check"><input type="checkbox" id="s-consent"> <span>Compreendo que o nome do meu perfil e o meu número de telemóvel ficam visíveis no anúncio, para que os compradores interessados me contactem por WhatsApp ou telefone.</span></label>`}
@@ -1125,7 +1138,8 @@ function viewListingForm(r) {
       const fields = {
         p_name: v("s-name"), p_condition: v("s-cond"), p_price: Math.round(price * 100) / 100,
         p_shape: v("s-shape"), p_weight: weightText(w1, w2), p_notes: v("s-notes"),
-        p_review: review, p_photos: paths, p_seller_phone: phone, p_location: v("s-place"), p_town: v("s-town")
+        p_review: review, p_photos: paths, p_seller_phone: phone, p_location: v("s-place"), p_town: v("s-town"),
+        p_can_test: document.getElementById("s-test").checked
       };
       put("bandeja-last-phone", phone); put("bandeja-last-place", v("s-place")); put("bandeja-last-town", v("s-town"));
       if (editing) {

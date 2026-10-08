@@ -2,7 +2,7 @@
 
 Site de anúncios de raquetes de padel, novas e usadas, em português de Portugal. Os interessados contactam o vendedor diretamente por WhatsApp ou telefone.
 
-Site: https://tomasgoulart.github.io/padelAzoresShop/
+Site: https://padeleiros.github.io/
 
 ## O que faz
 
@@ -40,7 +40,7 @@ Para apagar um anúncio de spam: **Table Editor → listings**, apague a linha.
 1. Na Google Cloud Console, crie um **ID de cliente OAuth** do tipo **Aplicação Web**, com este URI de redirecionamento autorizado:
    `https://llyqlkdndiupwvczjenj.supabase.co/auth/v1/callback`
 2. No Supabase, em **Authentication → Sign In / Providers → Google**, ative o Google e cole o ID de cliente e o segredo.
-3. No Supabase, em **Authentication → URL Configuration**, defina o **Site URL** como `https://tomasgoulart.github.io/padelAzoresShop/` e adicione o mesmo endereço em **Redirect URLs**.
+3. No Supabase, em **Authentication → URL Configuration**, defina o **Site URL** como `https://padeleiros.github.io/` e adicione o mesmo endereço em **Redirect URLs**.
 
 ## Publicar com GitHub Pages
 
